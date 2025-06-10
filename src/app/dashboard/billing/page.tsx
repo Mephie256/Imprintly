@@ -1,0 +1,692 @@
+'use client'
+
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { useUser } from '@clerk/nextjs'
+import {
+  useUserProfile,
+  useUsageLimits,
+  useHasPremiumAccess,
+} from '@/contexts/UserContext'
+import Link from 'next/link'
+import UpgradeModal from '@/components/ui/UpgradeModal'
+import {
+  ArrowLeft,
+  Crown,
+  CreditCard,
+  Calendar,
+  TrendingUp,
+} from 'lucide-react'
+
+export default function BillingPage() {
+  const { user } = useUser()
+  const { userProfile, updateUserProfile } = useUserProfile()
+  const { currentUsage, currentLimit } = useUsageLimits()
+  const hasPremiumAccess = useHasPremiumAccess()
+  const [activeTab, setActiveTab] = useState('overview')
+  const [isUpgrading, setIsUpgrading] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+  // Real data from user profile
+  const subscriptionTier = userProfile?.subscription_tier || 'free'
+  const subscriptionStatus = userProfile?.subscription_status || 'inactive'
+  const isActive = subscriptionStatus === 'active'
+
+  const currentPlan =
+    subscriptionTier === 'monthly' && isActive
+      ? 'Monthly Pro'
+      : subscriptionTier === 'yearly' && isActive
+      ? 'Yearly Pro'
+      : 'Free'
+
+  const monthlyPrice =
+    subscriptionTier === 'monthly'
+      ? '$10.00'
+      : subscriptionTier === 'yearly'
+      ? '$2.50'
+      : '$0.00'
+
+  const nextBillingDate = userProfile?.subscription_current_period_end
+    ? new Date(userProfile.subscription_current_period_end).toLocaleDateString(
+        'en-US',
+        {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }
+      )
+    : 'N/A'
+
+  const fadeInUp = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.5 },
+  }
+
+  // Upgrade to Pro function - now uses Stripe
+  const handleUpgradeToPro = async (planType: 'monthly' | 'yearly') => {
+    if (!user) return
+
+    setIsUpgrading(true)
+    try {
+      const { redirectToCheckout } = await import('@/lib/payment-service')
+      await redirectToCheckout(planType)
+    } catch (error) {
+      console.error('Upgrade failed:', error)
+      alert('Failed to start checkout. Please try again.')
+      setIsUpgrading(false)
+    }
+  }
+
+  // Manage billing function - opens Stripe billing portal
+  const handleManageBilling = async () => {
+    try {
+      const { redirectToBillingPortal } = await import('@/lib/payment-service')
+      await redirectToBillingPortal()
+    } catch (error) {
+      console.error('Error opening billing portal:', error)
+      alert('Failed to open billing portal. Please try again.')
+    }
+  }
+
+  // Downgrade function
+  const handleDowngrade = async () => {
+    if (!user) return
+
+    if (
+      confirm(
+        'Are you sure you want to downgrade to the Free plan? You will lose access to premium features.'
+      )
+    ) {
+      setIsUpgrading(true)
+      try {
+        // Import the updateSubscriptionTier function
+        const { updateSubscriptionTier } = await import('@/lib/user-service')
+
+        // Update subscription in Supabase
+        const success = await updateSubscriptionTier(user.id, 'free')
+
+        if (success) {
+          // Update local user profile
+          if (updateUserProfile) {
+            await updateUserProfile({
+              subscription_tier: 'free',
+            })
+          }
+
+          alert('Successfully downgraded to Free plan.')
+        } else {
+          alert('Downgrade failed. Please try again.')
+        }
+      } catch (error) {
+        console.error('Downgrade failed:', error)
+        alert('Downgrade failed. Please try again.')
+      } finally {
+        setIsUpgrading(false)
+      }
+    }
+  }
+
+  return (
+    <div className="bg-gray-900 text-gray-300 min-h-screen relative modern-background">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-xl flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-emerald-400" />
+              </div>
+              <h1 className="text-2xl font-bold text-white">
+                Billing & Subscription 💳
+              </h1>
+            </div>
+            <p className="text-gray-400 text-sm">
+              Manage your subscription and billing information
+            </p>
+          </div>
+
+          <Link
+            href="/dashboard"
+            className="group flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all duration-200 text-gray-300 hover:text-white">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
+            <span className="font-medium">Back to Dashboard</span>
+          </Link>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-2 border border-white/10 mb-8">
+          <div className="flex space-x-2">
+            {[
+              { id: 'overview', label: 'Overview', icon: TrendingUp },
+              { id: 'plans', label: 'Plans', icon: Crown },
+              { id: 'history', label: 'Billing History', icon: Calendar },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? 'bg-emerald-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}>
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <motion.div {...fadeInUp} className="space-y-8">
+            {/* Current Plan Card */}
+            <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">Current Plan</h2>
+                <span
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold ${
+                    currentPlan === 'Free'
+                      ? 'bg-gray-600/50 text-gray-300 border border-gray-500/30'
+                      : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                  }`}>
+                  {currentPlan}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center md:text-left">
+                  <p className="text-gray-400 text-sm mb-2">Plan Type</p>
+                  <p className="text-white font-bold text-xl">{currentPlan}</p>
+                  {subscriptionTier === 'yearly' && (
+                    <p className="text-emerald-400 text-sm mt-1">Save 75%!</p>
+                  )}
+                </div>
+                <div className="text-center md:text-left">
+                  <p className="text-gray-400 text-sm mb-2">
+                    {subscriptionTier === 'yearly'
+                      ? 'Monthly Equivalent'
+                      : 'Monthly Cost'}
+                  </p>
+                  <p className="text-white font-bold text-xl">{monthlyPrice}</p>
+                  {subscriptionTier === 'yearly' && (
+                    <p className="text-gray-400 text-sm mt-1">($30/year)</p>
+                  )}
+                </div>
+                <div className="text-center md:text-left">
+                  <p className="text-gray-400 text-sm mb-2">
+                    Next Billing Date
+                  </p>
+                  <p className="text-white font-bold text-xl">
+                    {nextBillingDate}
+                  </p>
+                  {subscriptionStatus &&
+                    subscriptionStatus !== 'active' &&
+                    subscriptionStatus !== 'inactive' && (
+                      <p className="text-yellow-400 text-sm mt-1 capitalize">
+                        {subscriptionStatus}
+                      </p>
+                    )}
+                </div>
+              </div>
+
+              {currentPlan === 'Free' ? (
+                <div className="mt-6 p-4 bg-emerald-900/20 border border-emerald-500/30 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-emerald-400 font-medium">
+                        Upgrade to Pro
+                      </h3>
+                      <p className="text-gray-400 text-sm">
+                        Unlock unlimited text-behind effects and premium
+                        features
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowUpgradeModal(true)}
+                      disabled={isUpgrading}
+                      className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-800 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                      {isUpgrading ? 'Processing...' : 'Upgrade Now'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-blue-400 font-medium">
+                        Manage Subscription
+                      </h3>
+                      <p className="text-gray-400 text-sm">
+                        Update payment methods, view invoices, or cancel
+                        subscription
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleManageBilling}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                      Manage Billing
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Usage Stats */}
+            <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
+              <h2 className="text-2xl font-bold text-white mb-6">
+                Usage Overview
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-emerald-400">
+                      {currentUsage}
+                    </span>
+                  </div>
+                  <p className="text-white font-semibold text-lg">
+                    {currentUsage}
+                  </p>
+                  <p className="text-gray-400 text-sm">Images Created</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-blue-400">
+                      {currentLimit}
+                    </span>
+                  </div>
+                  <p className="text-white font-semibold text-lg">
+                    {currentLimit}
+                  </p>
+                  <p className="text-gray-400 text-sm">Monthly Limit</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-purple-400">
+                      {hasPremiumAccess
+                        ? '∞'
+                        : Math.max(0, currentLimit - currentUsage)}
+                    </span>
+                  </div>
+                  <p className="text-white font-semibold text-lg">
+                    {hasPremiumAccess
+                      ? 'Unlimited'
+                      : Math.max(0, currentLimit - currentUsage)}
+                  </p>
+                  <p className="text-gray-400 text-sm">Remaining</p>
+                </div>
+              </div>
+
+              {/* Usage Progress Bar */}
+              <div className="mt-8">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-400">Usage Progress</span>
+                  <span className="text-sm text-gray-400">
+                    {hasPremiumAccess
+                      ? 'Unlimited'
+                      : `${currentUsage}/${currentLimit}`}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-3">
+                  <div
+                    className={`h-3 rounded-full transition-all duration-500 ${
+                      hasPremiumAccess
+                        ? 'bg-gradient-to-r from-emerald-500 to-blue-500 w-full'
+                        : currentUsage >= currentLimit
+                        ? 'bg-gradient-to-r from-red-500 to-orange-500'
+                        : 'bg-gradient-to-r from-emerald-500 to-blue-500'
+                    }`}
+                    style={{
+                      width: hasPremiumAccess
+                        ? '100%'
+                        : `${Math.min(
+                            (currentUsage / currentLimit) * 100,
+                            100
+                          )}%`,
+                    }}></div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Plans Tab */}
+        {activeTab === 'plans' && (
+          <motion.div
+            {...fadeInUp}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Free Plan */}
+            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="text-center">
+                <h3 className="text-xl font-bold mb-2">Free</h3>
+                <div className="text-3xl font-bold mb-4">
+                  $0<span className="text-lg text-gray-400">/month</span>
+                </div>
+                <ul className="space-y-3 text-sm text-gray-300 mb-6">
+                  <li className="flex items-center">
+                    <svg
+                      className="w-4 h-4 text-emerald-400 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    3 text-behind effects
+                  </li>
+                  <li className="flex items-center">
+                    <svg
+                      className="w-4 h-4 text-emerald-400 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Basic fonts
+                  </li>
+                  <li className="flex items-center">
+                    <svg
+                      className="w-4 h-4 text-emerald-400 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Standard support
+                  </li>
+                </ul>
+                <button
+                  onClick={currentPlan !== 'Free' ? handleDowngrade : undefined}
+                  disabled={currentPlan === 'Free' || isUpgrading}
+                  className={`w-full py-2 px-4 rounded-lg transition-colors duration-200 ${
+                    currentPlan === 'Free'
+                      ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      : 'bg-gray-600 hover:bg-gray-500 text-white disabled:bg-gray-700 disabled:cursor-not-allowed'
+                  }`}>
+                  {currentPlan === 'Free'
+                    ? 'Current Plan'
+                    : isUpgrading
+                    ? 'Processing...'
+                    : 'Downgrade'}
+                </button>
+              </div>
+            </div>
+
+            {/* Monthly Plan */}
+            <div className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/20 rounded-xl p-6 border-2 border-emerald-500/50 relative">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  POPULAR
+                </span>
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-bold mb-2 text-emerald-400">
+                  Monthly Pro
+                </h3>
+                <div className="text-3xl font-bold mb-4">
+                  $10<span className="text-lg text-gray-400">/month</span>
+                </div>
+                <ul className="space-y-3 text-sm text-gray-300 mb-6">
+                  <li className="flex items-center">
+                    <svg
+                      className="w-4 h-4 text-emerald-400 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Unlimited text-behind effects
+                  </li>
+                  <li className="flex items-center">
+                    <svg
+                      className="w-4 h-4 text-emerald-400 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Premium fonts & effects
+                  </li>
+                  <li className="flex items-center">
+                    <svg
+                      className="w-4 h-4 text-emerald-400 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Priority support
+                  </li>
+                </ul>
+                <button
+                  onClick={
+                    currentPlan !== 'Monthly Pro'
+                      ? () => handleUpgradeToPro('monthly')
+                      : undefined
+                  }
+                  disabled={currentPlan === 'Monthly Pro' || isUpgrading}
+                  className={`w-full py-2 px-4 rounded-lg transition-colors duration-200 ${
+                    currentPlan === 'Monthly Pro'
+                      ? 'bg-emerald-600 text-white cursor-not-allowed'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white disabled:bg-emerald-800 disabled:cursor-not-allowed'
+                  }`}>
+                  {currentPlan === 'Monthly Pro'
+                    ? 'Current Plan'
+                    : isUpgrading
+                    ? 'Processing...'
+                    : 'Upgrade to Pro'}
+                </button>
+              </div>
+            </div>
+
+            {/* Yearly Plan */}
+            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="text-center">
+                <h3 className="text-xl font-bold mb-2">Yearly Pro</h3>
+                <div className="text-3xl font-bold mb-2">
+                  $30<span className="text-lg text-gray-400">/year</span>
+                </div>
+                <div className="text-emerald-400 text-sm mb-4">
+                  Save $90/year
+                </div>
+                <ul className="space-y-3 text-sm text-gray-300 mb-6">
+                  <li className="flex items-center">
+                    <svg
+                      className="w-4 h-4 text-emerald-400 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Everything in Monthly Pro
+                  </li>
+                  <li className="flex items-center">
+                    <svg
+                      className="w-4 h-4 text-emerald-400 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    75% cost savings
+                  </li>
+                  <li className="flex items-center">
+                    <svg
+                      className="w-4 h-4 text-emerald-400 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Early access to features
+                  </li>
+                </ul>
+                <button
+                  onClick={() => handleUpgradeToPro('yearly')}
+                  disabled={isUpgrading}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg transition-colors duration-200">
+                  {isUpgrading ? 'Processing...' : 'Upgrade to Yearly'}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Billing History Tab */}
+        {activeTab === 'history' && (
+          <motion.div
+            {...fadeInUp}
+            className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+            <div className="p-6 border-b border-gray-700">
+              <h2 className="text-xl font-semibold">Billing History</h2>
+              <p className="text-gray-400 text-sm mt-1">
+                View and download your past invoices
+              </p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Invoice
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-700">
+                  {billingHistory.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-700/50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                        {item.date}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                        {item.amount}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 py-1 text-xs font-medium bg-emerald-600 text-white rounded-full">
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        {item.invoice}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <button className="text-emerald-400 hover:text-emerald-300 transition-colors duration-200">
+                          Download
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Payment Methods Tab */}
+        {activeTab === 'payment' && (
+          <motion.div {...fadeInUp} className="space-y-6">
+            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Payment Methods</h2>
+                <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                  Add Payment Method
+                </button>
+              </div>
+
+              {currentPlan === 'Free' ? (
+                <div className="text-center py-8">
+                  <svg
+                    className="w-16 h-16 text-gray-600 mx-auto mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                    />
+                  </svg>
+                  <p className="text-gray-400">
+                    No payment methods required for free plan
+                  </p>
+                  <p className="text-gray-500 text-sm mt-1">
+                    Upgrade to Pro to add payment methods
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                    <div className="flex items-center">
+                      <div className="w-12 h-8 bg-blue-600 rounded flex items-center justify-center mr-3">
+                        <span className="text-white text-xs font-bold">
+                          VISA
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-white">•••• •••• •••• 4242</p>
+                        <p className="text-gray-400 text-sm">Expires 12/25</p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button className="text-gray-400 hover:text-white transition-colors duration-200">
+                        Edit
+                      </button>
+                      <button className="text-red-400 hover:text-red-300 transition-colors duration-200">
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Beautiful Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+      />
+    </div>
+  )
+}

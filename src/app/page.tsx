@@ -1,103 +1,129 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import { motion } from 'framer-motion'
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+// Import components
+import Navbar from './components/Navbar'
+import HeroSection from './components/HeroSection'
+import StatsSection from './components/StatsSection'
+import FeaturesSection from './components/FeaturesSection'
+import CallToActionSection from './components/CallToActionSection'
+import PricingSection from './components/PricingSection'
+import Footer from './components/Footer'
+
+/**
+ * @constant primaryFeatures
+ * @description Defines the key features of the application with their names, descriptions, and placeholder icons.
+ * These features are displayed in the Features section of the landing page.
+ */
+const primaryFeatures = [
+  {
+    name: 'Intuitive Editor',
+    description: 'Easily add and style text with our user-friendly interface.',
+    icon: '/window.svg', // Placeholder icon for the editor feature
+  },
+  {
+    name: 'Vast Font Library',
+    description: 'Access hundreds of Google Fonts to match your brand.',
+    icon: '/globe.svg', // Placeholder icon for the font library feature
+  },
+  {
+    name: 'Instant Preview',
+    description: 'See your changes live, ensuring pixel-perfect results.',
+    icon: '/vercel.svg', // Placeholder icon for the instant preview feature
+  },
+  {
+    name: 'High-Res Exports',
+    description:
+      'Download your creations in PNG or JPG, ready for any platform.',
+    icon: '/file.svg', // Placeholder icon for high-resolution exports
+  },
+]
+
+/**
+ * @constant stats
+ * @description Defines key statistics about the application, such as supported fonts, effects created, and happy users.
+ * These statistics are displayed in the Stats section of the landing page.
+ */
+const stats = [
+  { id: 1, name: 'Effects Created', value: '25K+' },
+  { id: 2, name: 'Fonts Supported', value: '800+' },
+  { id: 3, name: 'Happy Users', value: '10K+' },
+]
+
+/**
+ * @constant fadeInUp
+ * @description Framer Motion variant for a fade-in and slide-up animation effect.
+ * Used for individual elements to appear smoothly on scroll or load.
+ */
+const fadeInUp = {
+  initial: { opacity: 0, y: 60 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.6, -0.05, 0.01, 0.99] },
+  },
 }
+
+/**
+ * @constant staggerContainer
+ * @description Framer Motion variant for staggering child animations.
+ * Used to create a sequential reveal effect for groups of elements.
+ */
+const staggerContainer = {
+  initial: {},
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+}
+
+/**
+ * @function LandingPageV2
+ * @description The main landing page component for the Imprintly application.
+ * This component orchestrates various sections of the page, including navigation, hero, stats, features, call to action, pricing, and footer.
+ * It utilizes Framer Motion for animations and organizes content into reusable components for better maintainability.
+ */
+const LandingPageV2 = () => {
+  return (
+    <div className="bg-gray-900 text-gray-300 min-h-screen relative modern-background">
+      {/* Navigation Section: Displays the main navigation bar with links and mobile menu toggle. */}
+      <Navbar />
+
+      {/* Main Content Area: Contains all primary sections of the landing page. */}
+      <main className="flex-grow pt-16 sm:pt-20">
+        {/* Hero Section: Features the main headline, call-to-action buttons, and image comparison. */}
+        <HeroSection staggerContainer={staggerContainer} fadeInUp={fadeInUp} />
+
+        {/* Statistics Section: Showcases key metrics and achievements of the application. */}
+        <StatsSection
+          staggerContainer={staggerContainer}
+          fadeInUp={fadeInUp}
+          stats={stats}
+        />
+
+        {/* Features Section: Highlights the core functionalities and benefits of Imprintly. */}
+        <FeaturesSection
+          staggerContainer={staggerContainer}
+          fadeInUp={fadeInUp}
+          primaryFeatures={primaryFeatures}
+        />
+
+        {/* Call to Action Section: Encourages users to start creating with a compelling message. */}
+        <CallToActionSection fadeInUp={fadeInUp} />
+
+        {/* Pricing Section: Details the different subscription plans available to users. */}
+        <PricingSection
+          staggerContainer={staggerContainer}
+          fadeInUp={fadeInUp}
+        />
+      </main>
+
+      {/* Footer Section: Contains copyright information and navigation links. */}
+      <Footer />
+    </div>
+  )
+}
+
+export default LandingPageV2

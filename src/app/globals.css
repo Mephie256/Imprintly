@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --background: #ffffff;
@@ -22,5 +22,167 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-roboto), sans-serif;
+}
+
+.modern-background {
+  background-color: #0a0a0a; /* Dark background color */
+  background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 0
+    ),
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+    linear-gradient(
+      to bottom,
+      rgba(0, 255, 255, 0.01) 0%,
+      transparent 50%,
+      rgba(255, 0, 255, 0.01) 100%
+    ); /* Added subtle linear gradient */
+  background-size: 20px 20px, 100% 100%, 100% 100%, 100% 100%; /* Adjusted background-size for multiple backgrounds */
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+      circle at 50% 50%,
+      rgba(0, 255, 255, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(circle at 20% 80%, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(255, 0, 255, 0.1) 0%,
+      transparent 50%
+    );
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure input text visibility across all browsers - only for auth pages */
+.auth-page input[type='email'],
+.auth-page input[type='password'],
+.auth-page input[type='text'] {
+  color: #111827 !important;
+  background-color: #ffffff !important;
+  -webkit-text-fill-color: #111827 !important;
+  -webkit-background-clip: text !important;
+}
+
+.auth-page input[type='email']:focus,
+.auth-page input[type='password']:focus,
+.auth-page input[type='text']:focus {
+  color: #111827 !important;
+  background-color: #ffffff !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+.auth-page input[type='email']:disabled,
+.auth-page input[type='password']:disabled,
+.auth-page input[type='text']:disabled {
+  color: #6b7280 !important;
+  -webkit-text-fill-color: #6b7280 !important;
+}
+
+/* Ensure placeholder text is visible - only for auth pages */
+.auth-page input::placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
+/* Fix for webkit autofill - only for auth pages */
+.auth-page input:-webkit-autofill,
+.auth-page input:-webkit-autofill:hover,
+.auth-page input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #111827 !important;
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Professional font families for canvas rendering */
+.font-inter {
+  font-family: var(--font-inter), sans-serif;
+}
+.font-roboto {
+  font-family: var(--font-roboto), sans-serif;
+}
+.font-open-sans {
+  font-family: var(--font-open-sans), sans-serif;
+}
+.font-lato {
+  font-family: var(--font-lato), sans-serif;
+}
+.font-montserrat {
+  font-family: var(--font-montserrat), sans-serif;
+}
+.font-poppins {
+  font-family: var(--font-poppins), sans-serif;
+}
+.font-playfair-display {
+  font-family: var(--font-playfair-display), serif;
+}
+.font-merriweather {
+  font-family: var(--font-merriweather), serif;
+}
+.font-oswald {
+  font-family: var(--font-oswald), sans-serif;
+}
+.font-dancing-script {
+  font-family: var(--font-dancing-script), cursive;
+}
+.font-pacifico {
+  font-family: var(--font-pacifico), cursive;
+}
+.font-fira-code {
+  font-family: var(--font-fira-code), monospace;
+}
+.font-bebas-neue {
+  font-family: var(--font-bebas-neue), sans-serif;
+}
+
+/* Custom slider styles */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #374151;
+  outline: none;
+  border-radius: 8px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #10b981;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #10b981;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Canvas text rendering optimization */
+canvas {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  text-rendering: optimizeLegibility;
 }
