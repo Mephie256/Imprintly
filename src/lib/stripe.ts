@@ -14,7 +14,7 @@ export const stripe = new Stripe(stripeSecretKey, {
   typescript: true,
 })
 
-// Pricing configuration
+// Pricing configuration - safe for build time
 export const PRICING_PLANS = {
   monthly: {
     priceId: process.env.STRIPE_MONTHLY_PRICE_ID || 'price_monthly_placeholder',

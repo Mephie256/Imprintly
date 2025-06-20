@@ -4,7 +4,7 @@ import { verifyWebhookSignature } from '@/lib/stripe'
 import { createSupabaseServerClient } from '@/lib/supabase'
 import Stripe from 'stripe'
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder'
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder_for_build'
 
 export async function POST(request: NextRequest) {
   try {
