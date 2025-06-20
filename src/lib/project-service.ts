@@ -351,7 +351,7 @@ export async function duplicateProject(
 
     const duplicatedProject = await createProject(clerkUserId, {
       title: `${originalProject.title} (Copy)`,
-      description: originalProject.description,
+      description: originalProject.description || undefined,
       image_url: originalProject.image_url,
       overlay_config: originalProject.overlay_config,
       tags: originalProject.tags || [],
@@ -654,9 +654,7 @@ export async function downloadProject(
       // Download directly from Cloudinary
       const downloadName =
         filename ||
-        `${project.title
-          .replace(/[^a-z0-9]/gi, '_')
-          .toLowerCase()}_imprintify.png`
+        `imprintly-${Date.now()}.png`
 
       return await downloadImageFromCloudinary(project.image_url, downloadName)
     }
@@ -697,9 +695,7 @@ export async function downloadProject(
     const { downloadDataUrl } = await import('./image-processor')
 
     // Generate filename
-    const defaultFilename = `${project.title
-      .replace(/[^a-z0-9]/gi, '_')
-      .toLowerCase()}_text_behind_effect.jpg`
+    const defaultFilename = `imprintly-${Date.now()}.jpg`
 
     console.log('⬇️ Downloading generated image...')
     // Download the image

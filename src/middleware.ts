@@ -43,7 +43,7 @@ export default clerkMiddleware((auth, req) => {
       const allowedOrigins = [
         process.env.NEXT_PUBLIC_APP_URL,
         'https://your-domain.com', // Replace with your actual domain
-      ].filter(Boolean)
+      ].filter(Boolean) as string[]
 
       if (!allowedOrigins.some((allowed) => origin.startsWith(allowed))) {
         console.warn('🚫 Blocked request from unauthorized origin:', origin)

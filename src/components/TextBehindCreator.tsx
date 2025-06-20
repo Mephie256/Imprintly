@@ -36,6 +36,7 @@ import TextEditModal from './ui/TextEditModal'
 import DownloadModal from './ui/DownloadModal'
 import SaveSuccessAnimation from './ui/SaveSuccessAnimation'
 import UpgradeModal from './ui/UpgradeModal'
+import { fontLoader, ensureFontReady } from '@/utils/fontLoader'
 
 export default function TextBehindCreator() {
   const router = useRouter()
@@ -54,6 +55,8 @@ export default function TextBehindCreator() {
   useEffect(() => {
     initializeClientSecurity()
   }, [])
+
+
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // State management
@@ -79,6 +82,8 @@ export default function TextBehindCreator() {
   })
   const [isEditingText, setIsEditingText] = useState(false)
   const [showDownloadModal, setShowDownloadModal] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
+  const [downloadProgress, setDownloadProgress] = useState(0)
 
   // Style controls
   const [textColor, setTextColor] = useState('#FFFFFF')
@@ -103,6 +108,38 @@ export default function TextBehindCreator() {
   const [isPanning, setIsPanning] = useState(false)
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Initialize professional font loading
+  useEffect(() => {
+    console.log('🎨 TEXT BEHIND CREATOR: Initializing professional font loading...')
+    fontLoader.preloadPopularFonts().then(() => {
+      console.log('✅ TEXT BEHIND CREATOR: Popular fonts preloaded successfully')
+    }).catch((error) => {
+      console.warn('⚠️ TEXT BEHIND CREATOR: Font preloading failed:', error)
+    })
+  }, [])
+
+  // Load font when font selection changes - PROPER CANVAS FONT LOADING
+  useEffect(() => {
+    if (font) {
+      console.log(`🎨 TEXT BEHIND CREATOR: Ensuring font ready for canvas: ${font}`)
+      ensureFontReady(font).then((success) => {
+        if (success) {
+          console.log(`✅ TEXT BEHIND CREATOR: Font ready for canvas: ${font}`)
+          // Small delay to ensure font is fully ready, then redraw
+          setTimeout(() => {
+            if (canvasReady) {
+              drawCompositeImage().catch(error => {
+                console.error('❌ Error redrawing canvas after font load:', error)
+              })
+            }
+          }, 100)
+        } else {
+          console.warn(`⚠️ TEXT BEHIND CREATOR: Font failed to load: ${font}`)
+        }
+      })
+    }
+  }, [font, canvasReady])
 
   // Zoom functions
   const handleZoomIn = () => {
@@ -299,7 +336,7 @@ export default function TextBehindCreator() {
     }
   }
 
-  const drawCompositeImage = useCallback(() => {
+  const drawCompositeImage = useCallback(async () => {
     if (!canvasRef.current || !canvasReady || !imageSrc || !processedImageSrc)
       return
 
@@ -312,7 +349,7 @@ export default function TextBehindCreator() {
 
     try {
       const bgImg = new Image()
-      bgImg.onload = () => {
+      bgImg.onload = async () => {
         // Calculate optimal canvas size based on viewport and container
         const containerWidth = window.innerWidth * 0.6 // Assuming canvas takes ~60% of viewport width
         const containerHeight = window.innerHeight * 0.7 // Assuming canvas takes ~70% of viewport height
@@ -479,7 +516,7 @@ export default function TextBehindCreator() {
 
         const fontStyleString = fontStyle === 'italic' ? 'italic ' : ''
 
-        // Simple font loading check (non-blocking)
+        // PROPER FONT LOADING CHECK - Wait for font to be ready
         const systemFonts = [
           'Georgia',
           'Times New Roman',
@@ -498,14 +535,24 @@ export default function TextBehindCreator() {
 
         let fontReady = true
         if (!systemFonts.includes(font) && !preloadedFonts.includes(font)) {
-          // For Google Fonts, check if available
-          if (document.fonts && document.fonts.check(`16px "${font}"`)) {
-            console.log(`✅ CANVAS FONT DEBUG: Font available: ${font}`)
-            fontReady = true
-          } else {
-            console.log(
-              `⚠️ CANVAS FONT DEBUG: Font not ready, using fallback: ${font}`
-            )
+          // For Google Fonts, ensure they're loaded before using
+          try {
+            if (document.fonts && document.fonts.load) {
+              // Force load the font if not already loaded
+              await document.fonts.load(`16px "${font}"`)
+              console.log(`✅ CANVAS FONT DEBUG: Font force-loaded: ${font}`)
+            }
+
+            // Check if font is now available
+            if (document.fonts && document.fonts.check(`16px "${font}"`)) {
+              console.log(`✅ CANVAS FONT DEBUG: Font verified available: ${font}`)
+              fontReady = true
+            } else {
+              console.log(`⚠️ CANVAS FONT DEBUG: Font still not available: ${font}`)
+              fontReady = false
+            }
+          } catch (error) {
+            console.warn(`⚠️ CANVAS FONT DEBUG: Font load failed: ${font}`, error)
             fontReady = false
           }
         }
@@ -634,7 +681,9 @@ export default function TextBehindCreator() {
   // Draw composite image on canvas
   useEffect(() => {
     if (canvasReady) {
-      drawCompositeImage()
+      drawCompositeImage().catch(error => {
+        console.error('❌ Error in drawCompositeImage:', error)
+      })
     }
   }, [drawCompositeImage, canvasReady])
 
@@ -800,17 +849,34 @@ export default function TextBehindCreator() {
   ) => {
     if (!canvasRef.current || !imageSrc || !processedImageSrc) return
 
-    // Create a new canvas for the high-quality output using original image dimensions
-    const outputCanvas = document.createElement('canvas')
-    const outputCtx = outputCanvas.getContext('2d')
-    if (!outputCtx) return
+    // Start download progress
+    setIsDownloading(true)
+    setDownloadProgress(0)
 
-    const bgImg = new Image()
-    bgImg.onload = () => {
-      // Calculate optimal dimensions while maintaining aspect ratio
-      const aspectRatio = bgImg.width / bgImg.height
-      let outputWidth = Math.min(bgImg.width, maxWidth)
-      let outputHeight = outputWidth / aspectRatio
+    try {
+      // Progress: 10% - Starting canvas creation
+      setDownloadProgress(10)
+
+      // Create a new canvas for the high-quality output using original image dimensions
+      const outputCanvas = document.createElement('canvas')
+      const outputCtx = outputCanvas.getContext('2d')
+      if (!outputCtx) {
+        setIsDownloading(false)
+        return
+      }
+
+      // Progress: 20% - Loading background image
+      setDownloadProgress(20)
+
+      const bgImg = new Image()
+      bgImg.onload = () => {
+        // Progress: 40% - Background loaded, calculating dimensions
+        setDownloadProgress(40)
+
+        // Calculate optimal dimensions while maintaining aspect ratio
+        const aspectRatio = bgImg.width / bgImg.height
+        let outputWidth = Math.min(bgImg.width, maxWidth)
+        let outputHeight = outputWidth / aspectRatio
 
       // If height is still too large, scale down based on height
       const maxHeight = 1080
@@ -822,11 +888,17 @@ export default function TextBehindCreator() {
       outputCanvas.width = outputWidth
       outputCanvas.height = outputHeight
 
-      // Draw the background image at full quality
-      outputCtx.drawImage(bgImg, 0, 0, outputWidth, outputHeight)
+        // Progress: 50% - Drawing background
+        setDownloadProgress(50)
 
-      // Redraw text with proper scaling for high-quality output
-      outputCtx.save()
+        // Draw the background image at full quality
+        outputCtx.drawImage(bgImg, 0, 0, outputWidth, outputHeight)
+
+        // Progress: 60% - Rendering text
+        setDownloadProgress(60)
+
+        // Redraw text with proper scaling for high-quality output
+        outputCtx.save()
       outputCtx.textAlign = 'center'
       outputCtx.textBaseline = 'middle'
 
@@ -972,14 +1044,23 @@ export default function TextBehindCreator() {
 
       outputCtx.restore()
 
-      // Draw the foreground image
-      const fgImg = new Image()
-      fgImg.onload = async () => {
-        outputCtx.drawImage(fgImg, 0, 0, outputWidth, outputHeight)
+        // Progress: 70% - Loading foreground image
+        setDownloadProgress(70)
 
-        // Convert to blob with compression
-        const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png'
-        const dataURL = outputCanvas.toDataURL(mimeType, quality)
+        // Draw the foreground image
+        const fgImg = new Image()
+        fgImg.onload = async () => {
+          // Progress: 80% - Drawing foreground
+          setDownloadProgress(80)
+
+          outputCtx.drawImage(fgImg, 0, 0, outputWidth, outputHeight)
+
+          // Progress: 85% - Converting to image format
+          setDownloadProgress(85)
+
+          // Convert to blob with compression
+          const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png'
+          const dataURL = outputCanvas.toDataURL(mimeType, quality)
 
         // Calculate approximate file size
         const base64Length = dataURL.split(',')[1].length
@@ -989,20 +1070,41 @@ export default function TextBehindCreator() {
           `Download: ${outputWidth}x${outputHeight}, ${format.toUpperCase()}, ~${fileSizeKB}KB`
         )
 
-        // Auto-save project AFTER image is ready
-        console.log('💾 Starting auto-save on download...')
-        await autoSaveOnDownload()
+          // Progress: 90% - Auto-saving project
+          setDownloadProgress(90)
 
-        const link = document.createElement('a')
-        link.download = `text-behind-effect-${Date.now()}.${format}`
-        link.href = dataURL
-        link.click()
+          // Auto-save project AFTER image is ready
+          console.log('💾 Starting auto-save on download...')
+          await autoSaveOnDownload()
 
-        console.log('✅ Download completed with auto-save!')
+          // Progress: 95% - Preparing download
+          setDownloadProgress(95)
+
+          const link = document.createElement('a')
+          link.download = `imprintly-${Date.now()}.${format}`
+          link.href = dataURL
+          link.click()
+
+          // Progress: 100% - Download complete
+          setDownloadProgress(100)
+
+          console.log('✅ Download completed with auto-save!')
+
+          // Reset download state after a short delay
+          setTimeout(() => {
+            setIsDownloading(false)
+            setDownloadProgress(0)
+          }, 1000)
+        }
+        fgImg.src = processedImageSrc
       }
-      fgImg.src = processedImageSrc
+      bgImg.src = imageSrc
+    } catch (error) {
+      console.error('❌ Download failed:', error)
+      setIsDownloading(false)
+      setDownloadProgress(0)
+      alert('Download failed. Please try again.')
     }
-    bgImg.src = imageSrc
   }
 
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -1058,6 +1160,67 @@ export default function TextBehindCreator() {
   }
 
   const handleCanvasMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  // Touch event handlers for mobile support
+  const handleCanvasTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault()
+    if (!canvasRef.current) return
+
+    const canvas = canvasRef.current
+    const rect = canvas.getBoundingClientRect()
+    const scaleX = canvas.width / rect.width
+    const scaleY = canvas.height / rect.height
+
+    const touch = e.touches[0]
+    const touchX = (touch.clientX - rect.left) * scaleX
+    const touchY = (touch.clientY - rect.top) * scaleY
+
+    if (
+      touchX >= textBounds.x &&
+      touchX <= textBounds.x + textBounds.width &&
+      touchY >= textBounds.y &&
+      touchY <= textBounds.y + textBounds.height
+    ) {
+      setTextSelected(true)
+      setIsDragging(true)
+      setDragStart({ x: touchX, y: touchY })
+    } else {
+      setTextSelected(false)
+    }
+  }
+
+  const handleCanvasTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault()
+    if (!isDragging || !canvasRef.current) return
+
+    const canvas = canvasRef.current
+    const rect = canvas.getBoundingClientRect()
+    const scaleX = canvas.width / rect.width
+    const scaleY = canvas.height / rect.height
+
+    const touch = e.touches[0]
+    const touchX = (touch.clientX - rect.left) * scaleX
+    const touchY = (touch.clientY - rect.top) * scaleY
+
+    const deltaX = touchX - dragStart.x
+    const deltaY = touchY - dragStart.y
+
+    const newX = Math.max(
+      0,
+      Math.min(100, textPosition.x + (deltaX / canvas.width) * 100)
+    )
+    const newY = Math.max(
+      0,
+      Math.min(100, textPosition.y + (deltaY / canvas.height) * 100)
+    )
+
+    setTextPosition({ x: newX, y: newY })
+    setDragStart({ x: touchX, y: touchY })
+  }
+
+  const handleCanvasTouchEnd = () => {
     setIsDragging(false)
   }
 
@@ -1267,51 +1430,51 @@ export default function TextBehindCreator() {
 
   return (
     <div className="relative z-10 min-h-screen">
-      {/* Enhanced Header */}
+      {/* Enhanced Header - Mobile Responsive */}
       <div className="bg-white/5 backdrop-blur-sm border-b border-white/10 shadow-lg">
-        <div className="flex items-center justify-between p-6">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between p-4 lg:p-6 gap-4">
+          <div className="flex items-center gap-2 lg:gap-4">
             <button
               onClick={() => router.push('/dashboard')}
-              className="group flex items-center gap-3 text-gray-300 hover:text-emerald-400 transition-all duration-200 bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-xl border border-white/10 hover:border-emerald-500/30">
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" />
-              <span className="font-medium">Back to Dashboard</span>
+              className="group flex items-center gap-2 lg:gap-3 text-gray-300 hover:text-emerald-400 transition-all duration-200 bg-white/5 hover:bg-white/10 px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl border border-white/10 hover:border-emerald-500/30">
+              <ArrowLeft className="w-4 lg:w-5 h-4 lg:h-5 group-hover:-translate-x-1 transition-transform duration-200" />
+              <span className="font-medium text-sm lg:text-base">Back</span>
             </button>
 
-            {/* Upgrade to Pro Button - Only show for free users */}
+            {/* Upgrade to Pro Button - Only show for free users - Mobile Responsive */}
             {!hasPremiumAccess && (
               <button
                 onClick={() => setShowUpgradeModal(true)}
-                className="group flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-4 py-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl border border-emerald-500/30">
-                <Crown className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                <span className="font-medium">Upgrade to Pro</span>
+                className="group flex items-center gap-1 lg:gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl border border-emerald-500/30">
+                <Crown className="w-3 lg:w-4 h-3 lg:h-4 group-hover:scale-110 transition-transform duration-200" />
+                <span className="font-medium text-sm lg:text-base">Pro</span>
               </button>
             )}
 
-            {/* Pro Status Badge - Show for premium users */}
+            {/* Pro Status Badge - Show for premium users - Mobile Responsive */}
             {hasPremiumAccess && (
-              <div className="group flex items-center gap-2 bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 text-yellow-400 px-4 py-2.5 rounded-xl border border-yellow-500/30">
-                <Crown className="w-4 h-4" />
-                <span className="font-medium">Pro Member</span>
+              <div className="group flex items-center gap-1 lg:gap-2 bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 text-yellow-400 px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl border border-yellow-500/30">
+                <Crown className="w-3 lg:w-4 h-3 lg:h-4" />
+                <span className="font-medium text-sm lg:text-base">Pro</span>
               </div>
             )}
           </div>
 
-          <div className="text-center">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
+          <div className="text-center lg:text-center">
+            <h1 className="text-xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
               Text Behind Creator
             </h1>
-            <p className="text-gray-400 text-sm mt-1">
+            <p className="text-gray-400 text-xs lg:text-sm mt-1 hidden lg:block">
               Create stunning text-behind-subject effects
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 lg:gap-3 flex-wrap">
             {canvasReady && (
               <>
                 <button
                   onClick={handleReset}
-                  className="group px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 border border-white/20 hover:border-white/30 font-medium">
+                  className="group px-3 lg:px-5 py-2 lg:py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 border border-white/20 hover:border-white/30 font-medium text-sm lg:text-base">
                   <span className="group-hover:scale-105 inline-block transition-transform duration-200">
                     Reset
                   </span>
@@ -1345,9 +1508,14 @@ export default function TextBehindCreator() {
                 )}
                 <button
                   onClick={() => setShowDownloadModal(true)}
-                  className="group flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium">
-                  <Download className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                  <span>Download</span>
+                  disabled={isDownloading}
+                  className="group flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 disabled:from-emerald-800 disabled:to-emerald-900 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium">
+                  {isDownloading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    <Download className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+                  )}
+                  <span>{isDownloading ? 'Downloading...' : 'Download'}</span>
                 </button>
               </>
             )}
@@ -1381,21 +1549,21 @@ export default function TextBehindCreator() {
                 AI-Powered Background Separation
               </div>
 
-              <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
+              <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6 leading-tight">
                 Create Stunning{' '}
                 <span className="bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
                   Text Behind Effects
                 </span>
               </h2>
 
-              <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-lg lg:text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
                 Upload any image and we'll automatically separate the foreground
                 subject, allowing you to place text behind it for professional,
                 eye-catching visuals.
               </p>
 
-              {/* Feature highlights */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto">
+              {/* Feature highlights - Mobile Responsive */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-8 lg:mb-12 max-w-3xl mx-auto">
                 <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-emerald-500/30 transition-all duration-300">
                   <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4 mx-auto">
                     <svg
@@ -1481,10 +1649,10 @@ export default function TextBehindCreator() {
           </div>
         </div>
       ) : (
-        // Enhanced Editor state
-        <div className="flex h-[calc(100vh-120px)]">
-          {/* Enhanced Canvas Area */}
-          <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-gray-800/30 to-gray-900/50 relative">
+        // Enhanced Editor state - Mobile Responsive Layout
+        <div className="flex flex-col lg:flex-row h-[calc(100vh-120px)]">
+          {/* Enhanced Canvas Area - Mobile Responsive */}
+          <div className="flex-1 flex items-center justify-center p-4 lg:p-8 bg-gradient-to-br from-gray-800/30 to-gray-900/50 relative min-h-[60vh] lg:min-h-auto">
             {/* Background pattern */}
             <div className="absolute inset-0 opacity-5">
               <div
@@ -1556,13 +1724,17 @@ export default function TextBehindCreator() {
                       onMouseUp={handleCanvasMouseUp}
                       onMouseLeave={handleCanvasMouseUp}
                       onDoubleClick={handleCanvasDoubleClick}
-                      className={`border-2 border-white/20 rounded-2xl shadow-2xl transition-all duration-300 hover:border-emerald-500/30 hover:shadow-emerald-500/10 ${
+                      onTouchStart={handleCanvasTouchStart}
+                      onTouchMove={handleCanvasTouchMove}
+                      onTouchEnd={handleCanvasTouchEnd}
+                      className={`border-2 border-white/20 rounded-2xl shadow-2xl transition-all duration-300 hover:border-emerald-500/30 hover:shadow-emerald-500/10 max-w-full max-h-full ${
                         isDragging
                           ? 'cursor-grabbing'
                           : textSelected
                           ? 'cursor-grab'
                           : 'cursor-pointer'
                       }`}
+                      style={{ touchAction: 'none' }}
                     />
 
                     {/* Enhanced Text selection indicator */}
@@ -1643,14 +1815,14 @@ export default function TextBehindCreator() {
             )}
           </div>
 
-          {/* Enhanced Controls Panel */}
-          <div className="w-96 bg-white/5 backdrop-blur-sm border-l border-white/10 overflow-y-auto">
-            {/* Panel Header */}
-            <div className="p-6 border-b border-white/10">
+          {/* Enhanced Controls Panel - Mobile Responsive */}
+          <div className="w-full lg:w-96 bg-white/5 backdrop-blur-sm border-t lg:border-t-0 lg:border-l border-white/10 overflow-y-auto max-h-[40vh] lg:max-h-none">
+            {/* Panel Header - Mobile Responsive */}
+            <div className="p-4 lg:p-6 border-b border-white/10">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                <div className="w-6 lg:w-8 h-6 lg:h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
                   <svg
-                    className="w-4 h-4 text-emerald-400"
+                    className="w-3 lg:w-4 h-3 lg:h-4 text-emerald-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24">
@@ -1663,18 +1835,18 @@ export default function TextBehindCreator() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-white">
+                  <h3 className="text-base lg:text-lg font-semibold text-white">
                     Text Controls
                   </h3>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 hidden lg:block">
                     Customize your text-behind effect
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Controls Content */}
-            <div className="p-6 space-y-8">
+            {/* Controls Content - Mobile Responsive */}
+            <div className="p-4 lg:p-6 space-y-4 lg:space-y-8">
               <TextControls
                 text={text}
                 setText={setText}
@@ -1829,6 +2001,54 @@ export default function TextBehindCreator() {
         onClose={() => setShowDownloadModal(false)}
         onDownload={handleDownload}
       />
+
+      {/* Download Progress Overlay */}
+      {isDownloading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-gray-800 border border-white/20 rounded-2xl p-8 w-full max-w-md mx-4">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Download className="w-8 h-8 text-emerald-400" />
+              </div>
+
+              <h3 className="text-xl font-bold text-white mb-2">
+                Preparing Your Download
+              </h3>
+
+              <p className="text-gray-400 mb-6">
+                Processing your image with high quality settings...
+              </p>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-700 rounded-full h-3 mb-4 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${downloadProgress}%` }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-400">
+                  {downloadProgress < 20 && 'Initializing...'}
+                  {downloadProgress >= 20 && downloadProgress < 40 && 'Loading image...'}
+                  {downloadProgress >= 40 && downloadProgress < 50 && 'Calculating dimensions...'}
+                  {downloadProgress >= 50 && downloadProgress < 60 && 'Drawing background...'}
+                  {downloadProgress >= 60 && downloadProgress < 70 && 'Rendering text...'}
+                  {downloadProgress >= 70 && downloadProgress < 80 && 'Loading foreground...'}
+                  {downloadProgress >= 80 && downloadProgress < 85 && 'Drawing foreground...'}
+                  {downloadProgress >= 85 && downloadProgress < 90 && 'Converting to image...'}
+                  {downloadProgress >= 90 && downloadProgress < 95 && 'Auto-saving project...'}
+                  {downloadProgress >= 95 && downloadProgress < 100 && 'Preparing download...'}
+                  {downloadProgress >= 100 && 'Complete!'}
+                </span>
+                <span className="text-emerald-400 font-medium">
+                  {downloadProgress}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Beautiful Save Success Animation */}
       <SaveSuccessAnimation

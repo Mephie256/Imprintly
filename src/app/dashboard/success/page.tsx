@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useUserProfile } from '@/contexts/UserContext'
 import { CheckCircle, Loader2, ArrowRight, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
-export default function SuccessPage() {
+function SuccessPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { userProfile, refreshUserProfile } = useUserProfile()
@@ -204,5 +204,25 @@ export default function SuccessPage() {
         </motion.div>
       </div>
     </div>
+  )
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="bg-gray-900 text-gray-300 min-h-screen relative modern-background flex items-center justify-center">
+        <div className="relative z-10 text-center">
+          <Loader2 className="w-16 h-16 animate-spin text-emerald-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-white mb-2">
+            Loading...
+          </h1>
+          <p className="text-gray-400">
+            Please wait while we load your success page
+          </p>
+        </div>
+      </div>
+    }>
+      <SuccessPageContent />
+    </Suspense>
   )
 }

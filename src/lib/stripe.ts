@@ -10,7 +10,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 export const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-05-28.basil',
   typescript: true,
 })
 
@@ -112,6 +112,39 @@ export async function getCustomerByEmail(email: string) {
   } catch (error) {
     console.error('Error getting customer by email:', error)
     return null
+  }
+}
+
+// Helper function to get customer invoices
+export async function getCustomerInvoices(customerId: string, limit = 50) {
+  try {
+    const invoices = await stripe.invoices.list({
+      customer: customerId,
+      limit,
+      expand: ['data.subscription'],
+    })
+
+    return invoices.data
+  } catch (error) {
+    console.error('Error getting customer invoices:', error)
+    return []
+  }
+}
+
+// Helper function to format invoice for display
+export function formatInvoiceForDisplay(invoice: any) {
+  return {
+    id: invoice.id,
+    date: new Date(invoice.created * 1000).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }),
+    amount: `$${(invoice.amount_paid / 100).toFixed(2)}`,
+    status: invoice.status || 'unknown',
+    invoice: invoice.number || invoice.id,
+    invoice_url: invoice.hosted_invoice_url,
+    description: invoice.description || 'Subscription payment',
   }
 }
 

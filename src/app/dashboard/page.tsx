@@ -52,7 +52,7 @@ export default function Dashboard() {
   const [loadingProjects, setLoadingProjects] = useState(true)
   const [isUpgrading, setIsUpgrading] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [isSyncing, setIsSyncing] = useState(false)
+
 
   // Get plan-specific information with Pro styling
   const getPlanInfo = () => {
@@ -224,41 +224,7 @@ export default function Dashboard() {
     }
   }
 
-  // Sync subscription status with Stripe
-  const handleSyncSubscription = async () => {
-    if (!user) return
 
-    setIsSyncing(true)
-    try {
-      const response = await fetch('/api/sync-subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        console.log('✅ Subscription synced:', result)
-
-        // Refresh user profile to get updated data
-        if (refreshUserProfile) {
-          await refreshUserProfile()
-        }
-
-        alert(`✅ Subscription synced! Status: ${result.subscription_tier}`)
-      } else {
-        const error = await response.json()
-        console.error('❌ Sync failed:', error)
-        alert('❌ Failed to sync subscription. Please try again.')
-      }
-    } catch (error) {
-      console.error('❌ Sync error:', error)
-      alert('❌ Failed to sync subscription. Please try again.')
-    } finally {
-      setIsSyncing(false)
-    }
-  }
 
   if (loading) {
     return (
@@ -345,22 +311,7 @@ export default function Dashboard() {
                 <span className="font-medium">Refresh Projects</span>
               </button>
 
-              {/* Sync Subscription Button - For Testing */}
-              <button
-                onClick={handleSyncSubscription}
-                disabled={isSyncing}
-                className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all duration-200 w-full text-left disabled:opacity-50 disabled:cursor-not-allowed">
-                <div className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`}>
-                  {isSyncing ? (
-                    <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <Crown className="w-5 h-5" />
-                  )}
-                </div>
-                <span className="font-medium">
-                  {isSyncing ? 'Syncing...' : 'Sync Subscription'}
-                </span>
-              </button>
+
             </nav>
           </div>
         </div>

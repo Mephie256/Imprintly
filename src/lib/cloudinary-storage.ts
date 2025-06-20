@@ -144,7 +144,7 @@ export async function downloadImageFromCloudinary(
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = downloadName || 'imprintify_image.png'
+    link.download = downloadName || `imprintly-${Date.now()}.png`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)

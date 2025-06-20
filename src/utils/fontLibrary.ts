@@ -7,9 +7,9 @@ export interface Font {
   category: string;
 }
 
-// Font categories
+// Font categories (matching FontSelector categories)
 export const FONT_CATEGORIES = [
-  'Sans-serif',
+  'Sans Serif',
   'Serif',
   'Display',
   'Script',
@@ -20,12 +20,12 @@ export const FONT_CATEGORIES = [
 
 // Core fonts (loaded via Next.js)
 export const CORE_FONTS: Font[] = [
-  { name: 'Inter', cssVar: 'var(--font-inter)', category: 'Sans-serif' },
-  { name: 'Roboto', cssVar: 'var(--font-roboto)', category: 'Sans-serif' },
-  { name: 'Open Sans', cssVar: 'var(--font-open-sans)', category: 'Sans-serif' },
-  { name: 'Lato', cssVar: 'var(--font-lato)', category: 'Sans-serif' },
-  { name: 'Montserrat', cssVar: 'var(--font-montserrat)', category: 'Sans-serif' },
-  { name: 'Poppins', cssVar: 'var(--font-poppins)', category: 'Sans-serif' },
+  { name: 'Inter', cssVar: 'var(--font-inter)', category: 'Sans Serif' },
+  { name: 'Roboto', cssVar: 'var(--font-roboto)', category: 'Sans Serif' },
+  { name: 'Open Sans', cssVar: 'var(--font-open-sans)', category: 'Sans Serif' },
+  { name: 'Lato', cssVar: 'var(--font-lato)', category: 'Sans Serif' },
+  { name: 'Montserrat', cssVar: 'var(--font-montserrat)', category: 'Sans Serif' },
+  { name: 'Poppins', cssVar: 'var(--font-poppins)', category: 'Sans Serif' },
   { name: 'Playfair Display', cssVar: 'var(--font-playfair-display)', category: 'Serif' },
   { name: 'Merriweather', cssVar: 'var(--font-merriweather)', category: 'Serif' },
   { name: 'Oswald', cssVar: 'var(--font-oswald)', category: 'Display' },
@@ -36,46 +36,46 @@ export const CORE_FONTS: Font[] = [
 // Sans-serif Google Fonts
 export const SANS_SERIF_FONTS: Font[] = [
   // Popular Sans-serif Google Fonts
-  { name: 'Nunito', cssVar: 'Nunito', category: 'Sans-serif' },
-  { name: 'Source Sans Pro', cssVar: 'Source Sans Pro', category: 'Sans-serif' },
-  { name: 'Raleway', cssVar: 'Raleway', category: 'Sans-serif' },
-  { name: 'Ubuntu', cssVar: 'Ubuntu', category: 'Sans-serif' },
-  { name: 'Work Sans', cssVar: 'Work Sans', category: 'Sans-serif' },
-  { name: 'Barlow', cssVar: 'Barlow', category: 'Sans-serif' },
-  { name: 'DM Sans', cssVar: 'DM Sans', category: 'Sans-serif' },
-  { name: 'Manrope', cssVar: 'Manrope', category: 'Sans-serif' },
-  { name: 'Rubik', cssVar: 'Rubik', category: 'Sans-serif' },
-  { name: 'Noto Sans', cssVar: 'Noto Sans', category: 'Sans-serif' },
-  { name: 'PT Sans', cssVar: 'PT Sans', category: 'Sans-serif' },
-  { name: 'Oxygen', cssVar: 'Oxygen', category: 'Sans-serif' },
-  { name: 'Mukti', cssVar: 'Mukti', category: 'Sans-serif' },
-  { name: 'Karla', cssVar: 'Karla', category: 'Sans-serif' },
-  { name: 'Hind', cssVar: 'Hind', category: 'Sans-serif' },
-  { name: 'Fira Sans', cssVar: 'Fira Sans', category: 'Sans-serif' },
-  { name: 'Dosis', cssVar: 'Dosis', category: 'Sans-serif' },
-  { name: 'Cabin', cssVar: 'Cabin', category: 'Sans-serif' },
-  { name: 'Quicksand', cssVar: 'Quicksand', category: 'Sans-serif' },
-  { name: 'Muli', cssVar: 'Muli', category: 'Sans-serif' },
-  { name: 'Varela Round', cssVar: 'Varela Round', category: 'Sans-serif' },
-  { name: 'Titillium Web', cssVar: 'Titillium Web', category: 'Sans-serif' },
-  { name: 'Exo', cssVar: 'Exo', category: 'Sans-serif' },
-  { name: 'Arimo', cssVar: 'Arimo', category: 'Sans-serif' },
-  { name: 'Asap', cssVar: 'Asap', category: 'Sans-serif' },
-  { name: 'Catamaran', cssVar: 'Catamaran', category: 'Sans-serif' },
-  { name: 'Heebo', cssVar: 'Heebo', category: 'Sans-serif' },
-  { name: 'IBM Plex Sans', cssVar: 'IBM Plex Sans', category: 'Sans-serif' },
-  { name: 'Libre Franklin', cssVar: 'Libre Franklin', category: 'Sans-serif' },
+  { name: 'Nunito', cssVar: 'Nunito', category: 'Sans Serif' },
+  { name: 'Source Sans Pro', cssVar: 'Source Sans Pro', category: 'Sans Serif' },
+  { name: 'Raleway', cssVar: 'Raleway', category: 'Sans Serif' },
+  { name: 'Ubuntu', cssVar: 'Ubuntu', category: 'Sans Serif' },
+  { name: 'Work Sans', cssVar: 'Work Sans', category: 'Sans Serif' },
+  { name: 'Barlow', cssVar: 'Barlow', category: 'Sans Serif' },
+  { name: 'DM Sans', cssVar: 'DM Sans', category: 'Sans Serif' },
+  { name: 'Manrope', cssVar: 'Manrope', category: 'Sans Serif' },
+  { name: 'Rubik', cssVar: 'Rubik', category: 'Sans Serif' },
+  { name: 'Noto Sans', cssVar: 'Noto Sans', category: 'Sans Serif' },
+  { name: 'PT Sans', cssVar: 'PT Sans', category: 'Sans Serif' },
+  { name: 'Oxygen', cssVar: 'Oxygen', category: 'Sans Serif' },
+  { name: 'Mukti', cssVar: 'Mukti', category: 'Sans Serif' },
+  { name: 'Karla', cssVar: 'Karla', category: 'Sans Serif' },
+  { name: 'Hind', cssVar: 'Hind', category: 'Sans Serif' },
+  { name: 'Fira Sans', cssVar: 'Fira Sans', category: 'Sans Serif' },
+  { name: 'Dosis', cssVar: 'Dosis', category: 'Sans Serif' },
+  { name: 'Cabin', cssVar: 'Cabin', category: 'Sans Serif' },
+  { name: 'Quicksand', cssVar: 'Quicksand', category: 'Sans Serif' },
+  { name: 'Muli', cssVar: 'Muli', category: 'Sans Serif' },
+  { name: 'Varela Round', cssVar: 'Varela Round', category: 'Sans Serif' },
+  { name: 'Titillium Web', cssVar: 'Titillium Web', category: 'Sans Serif' },
+  { name: 'Exo', cssVar: 'Exo', category: 'Sans Serif' },
+  { name: 'Arimo', cssVar: 'Arimo', category: 'Sans Serif' },
+  { name: 'Asap', cssVar: 'Asap', category: 'Sans Serif' },
+  { name: 'Catamaran', cssVar: 'Catamaran', category: 'Sans Serif' },
+  { name: 'Heebo', cssVar: 'Heebo', category: 'Sans Serif' },
+  { name: 'IBM Plex Sans', cssVar: 'IBM Plex Sans', category: 'Sans Serif' },
+  { name: 'Libre Franklin', cssVar: 'Libre Franklin', category: 'Sans Serif' },
   // Additional Sans-serif fonts
-  { name: 'Archivo', cssVar: 'Archivo', category: 'Sans-serif' },
-  { name: 'Assistant', cssVar: 'Assistant', category: 'Sans-serif' },
-  { name: 'Figtree', cssVar: 'Figtree', category: 'Sans-serif' },
-  { name: 'Hanken Grotesk', cssVar: 'Hanken Grotesk', category: 'Sans-serif' },
-  { name: 'Lexend', cssVar: 'Lexend', category: 'Sans-serif' },
-  { name: 'Outfit', cssVar: 'Outfit', category: 'Sans-serif' },
-  { name: 'Plus Jakarta Sans', cssVar: 'Plus Jakarta Sans', category: 'Sans-serif' },
-  { name: 'Public Sans', cssVar: 'Public Sans', category: 'Sans-serif' },
-  { name: 'Sora', cssVar: 'Sora', category: 'Sans-serif' },
-  { name: 'Space Grotesk', cssVar: 'Space Grotesk', category: 'Sans-serif' },
+  { name: 'Archivo', cssVar: 'Archivo', category: 'Sans Serif' },
+  { name: 'Assistant', cssVar: 'Assistant', category: 'Sans Serif' },
+  { name: 'Figtree', cssVar: 'Figtree', category: 'Sans Serif' },
+  { name: 'Hanken Grotesk', cssVar: 'Hanken Grotesk', category: 'Sans Serif' },
+  { name: 'Lexend', cssVar: 'Lexend', category: 'Sans Serif' },
+  { name: 'Outfit', cssVar: 'Outfit', category: 'Sans Serif' },
+  { name: 'Plus Jakarta Sans', cssVar: 'Plus Jakarta Sans', category: 'Sans Serif' },
+  { name: 'Public Sans', cssVar: 'Public Sans', category: 'Sans Serif' },
+  { name: 'Sora', cssVar: 'Sora', category: 'Sans Serif' },
+  { name: 'Space Grotesk', cssVar: 'Space Grotesk', category: 'Sans Serif' },
 ];
 
 // Serif Google Fonts
@@ -275,7 +275,7 @@ export async function preloadPopularFonts(): Promise<void> {
     'Playfair Display', 'Lora', 'Oswald', 'Dancing Script',
     'Bebas Neue', 'Caveat', 'Pacifico'
   ];
-  
+
   // Create link elements for each font
   popularFonts.forEach(fontName => {
     const link = document.createElement('link');

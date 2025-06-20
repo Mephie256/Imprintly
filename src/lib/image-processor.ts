@@ -42,7 +42,7 @@ export async function generateImageWithText(
     // Create a canvas element
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
-    
+
     if (!ctx) {
       throw new Error('Could not get canvas context')
     }
@@ -50,14 +50,14 @@ export async function generateImageWithText(
     // Load the base image
     const img = new Image()
     img.crossOrigin = 'anonymous'
-    
+
     return new Promise((resolve, reject) => {
       img.onload = () => {
         try {
           // Set canvas dimensions
           const targetWidth = options.width || img.width
           const targetHeight = options.height || img.height
-          
+
           canvas.width = targetWidth
           canvas.height = targetHeight
 
@@ -115,7 +115,7 @@ export async function generateImageWithText(
           const quality = options.quality || 0.9
           const format = options.format || 'jpeg'
           const dataUrl = canvas.toDataURL(`image/${format}`, quality)
-          
+
           resolve(dataUrl)
         } catch (error) {
           reject(error)
@@ -155,11 +155,11 @@ export function dataUrlToBlob(dataUrl: string): Blob {
   const bstr = atob(arr[1])
   let n = bstr.length
   const u8arr = new Uint8Array(n)
-  
+
   while (n--) {
     u8arr[n] = bstr.charCodeAt(n)
   }
-  
+
   return new Blob([u8arr], { type: mime })
 }
 
@@ -175,14 +175,14 @@ export async function uploadImageToStorage(
     // This would integrate with Supabase storage
     // For now, return a mock URL
     console.log('Uploading image to storage:', filename)
-    
+
     // In a real implementation:
     // const { createSupabaseBrowserClient } = await import('./supabase')
     // const supabase = createSupabaseBrowserClient()
     // const { data, error } = await supabase.storage
     //   .from(bucket)
     //   .upload(filename, blob)
-    
+
     // Mock implementation
     return `https://example.com/storage/${bucket}/${filename}`
   } catch (error) {
@@ -203,21 +203,20 @@ export async function processAndSaveProjectImage(
   try {
     // Generate the image with text overlay
     const dataUrl = await generateImageWithText(imageUrl, overlayConfig, options)
-    
+
     if (!dataUrl) {
       return null
     }
 
     // Convert to blob
     const blob = dataUrlToBlob(dataUrl)
-    
+
     // Generate filename
-    const timestamp = Date.now()
-    const filename = `project-${projectId}-${timestamp}.jpg`
-    
+    const filename = `imprintly-${Date.now()}.jpg`
+
     // Upload to storage
     const uploadedUrl = await uploadImageToStorage(blob, filename)
-    
+
     return uploadedUrl
   } catch (error) {
     console.error('Error processing and saving project image:', error)

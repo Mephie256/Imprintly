@@ -271,7 +271,7 @@ export async function getTemplateCategories(): Promise<string[]> {
     }
 
     // Get unique categories
-    const categories = [...new Set(data?.map((item) => item.category) || [])]
+    const categories = [...new Set(data?.map((item: any) => item.category) || [])] as string[]
     return categories
   } catch (error) {
     console.error('Error getting template categories:', error)

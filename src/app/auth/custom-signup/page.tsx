@@ -247,7 +247,7 @@ export default function CustomSignUpPage() {
         unverifiedFields: result.unverifiedFields,
         missingFields: result.missingFields,
         verifications: result.verifications,
-        nextStep: result.nextStep,
+        nextStep: (result as any).nextStep,
       })
 
       // Log the complete result object for debugging
@@ -294,7 +294,7 @@ export default function CustomSignUpPage() {
         console.log('Unverified fields:', result.unverifiedFields)
 
         // Check if email is still unverified
-        if (result.unverifiedFields.includes('email_address')) {
+        if (result.unverifiedFields && result.unverifiedFields.includes('email_address')) {
           setError(
             'Email verification is still pending. Please check your email for a new code.'
           )

@@ -47,6 +47,9 @@ export async function POST(request: NextRequest) {
 
     const supabase = createSupabaseServerClient()
 
+    // Get userId from validation result
+    const userId = validation.userId
+
     // Get user profile to ensure user exists
     const { data: user, error: userError } = await supabase
       .from('users')

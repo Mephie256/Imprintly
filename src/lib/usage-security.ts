@@ -275,7 +275,7 @@ export function validateRequestSecurity(request: NextRequest): boolean {
       const allowedOrigins = [
         process.env.NEXT_PUBLIC_APP_URL,
         'https://your-domain.com', // Replace with your actual domain
-      ].filter(Boolean)
+      ].filter(Boolean) as string[]
 
       if (
         origin &&

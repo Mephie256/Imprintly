@@ -53,7 +53,7 @@ const detectScriptInjection = () => {
 
     if (script.textContent) {
       suspiciousPatterns.forEach((pattern) => {
-        if (new RegExp(pattern, 'i').test(script.textContent)) {
+        if (script.textContent && new RegExp(pattern, 'i').test(script.textContent)) {
           console.warn('🚫 Suspicious script pattern detected:', pattern)
         }
       })

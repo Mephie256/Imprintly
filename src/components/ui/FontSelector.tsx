@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Type } from 'lucide-react'
+import { fontLoader } from '@/utils/fontLoader'
 
 interface FontSelectorProps {
   selectedFont: string
@@ -214,99 +215,9 @@ const fonts = [
   },
 ]
 
-// Simple and reliable Google Fonts loader
+// Use the professional font loader
 const loadGoogleFont = (fontName: string): Promise<boolean> => {
-  return new Promise((resolve) => {
-    // Skip pre-loaded fonts
-    const preloadedFonts = [
-      'Inter',
-      'Roboto',
-      'Open Sans',
-      'Montserrat',
-      'Poppins',
-      'Lato',
-      'Playfair Display',
-      'Merriweather',
-      'Oswald',
-      'Bebas Neue',
-      'Dancing Script',
-      'Pacifico',
-      'Fira Code',
-    ]
-
-    if (preloadedFonts.includes(fontName)) {
-      console.log(`⏭️ Skipping pre-loaded font: ${fontName}`)
-      resolve(true)
-      return
-    }
-
-    // Skip system fonts
-    const systemFonts = [
-      'Georgia',
-      'Times New Roman',
-      'Courier New',
-      'Arial',
-      'Helvetica',
-    ]
-    if (systemFonts.includes(fontName)) {
-      console.log(`⏭️ Skipping system font: ${fontName}`)
-      resolve(true)
-      return
-    }
-
-    try {
-      // Simple URL encoding for Google Fonts
-      const urlFontName = fontName.replace(/\s+/g, '+')
-      const fontUrl = `https://fonts.googleapis.com/css2?family=${urlFontName}:wght@300;400;500;600;700;800;900&display=swap`
-
-      // Check if already loaded
-      const existingLink = document.querySelector(
-        `link[href*="${urlFontName}"]`
-      )
-      if (existingLink) {
-        console.log(`⏭️ Font already loaded: ${fontName}`)
-        resolve(true)
-        return
-      }
-
-      // Create link element
-      const link = document.createElement('link')
-      link.rel = 'stylesheet'
-      link.href = fontUrl
-
-      link.onload = () => {
-        console.log(`✅ Font loaded successfully: ${fontName}`)
-
-        // Test if font is actually available
-        setTimeout(() => {
-          if (document.fonts && document.fonts.check) {
-            const isAvailable = document.fonts.check(`16px "${fontName}"`)
-            console.log(
-              `🔍 Font availability test for "${fontName}": ${isAvailable}`
-            )
-            resolve(isAvailable)
-          } else {
-            resolve(true)
-          }
-        }, 100)
-      }
-
-      link.onerror = (error) => {
-        console.error(`❌ Failed to load font: ${fontName}`, error)
-        console.error(`❌ Failed URL: ${fontUrl}`)
-        if (link.parentNode) {
-          link.parentNode.removeChild(link)
-        }
-        resolve(false)
-      }
-
-      document.head.appendChild(link)
-      console.log(`🔄 Loading font: ${fontName} from URL: ${fontUrl}`)
-    } catch (error) {
-      console.error(`❌ Error loading font ${fontName}:`, error)
-      resolve(false)
-    }
-  })
+  return fontLoader.loadFont(fontName)
 }
 
 export default function FontSelector({
@@ -325,31 +236,16 @@ export default function FontSelector({
     'Monospace',
   ]
 
-  // Test and preload fonts on component mount
+  // Preload popular fonts on component mount
   useEffect(() => {
-    // Test with a simple font first
-    console.log('🧪 Testing font loading with Nunito...')
-    loadGoogleFont('Nunito')
+    console.log('🚀 FONT SELECTOR: Starting professional font preloading...')
 
-    // Load a few essential fonts
-    const essentialFonts = [
-      'Source Sans 3',
-      'Nunito',
-      'Raleway',
-      'Work Sans',
-      'Rubik',
-      'Anton',
-      'Bangers',
-      'Great Vibes',
-      'JetBrains Mono',
-    ]
-
-    setTimeout(() => {
-      essentialFonts.forEach((font) => {
-        console.log(`Loading essential font: ${font}`)
-        loadGoogleFont(font)
-      })
-    }, 500)
+    // Use the professional font loader's preloading feature
+    fontLoader.preloadPopularFonts().then(() => {
+      console.log('✅ FONT SELECTOR: Popular fonts preloaded successfully')
+    }).catch((error) => {
+      console.warn('⚠️ FONT SELECTOR: Font preloading failed:', error)
+    })
   }, [])
 
   const filteredFonts = fonts.filter((font) => {

@@ -67,7 +67,7 @@ export async function createBillingSession(): Promise<BillingPortalSession> {
 export async function redirectToCheckout(planType: PlanType): Promise<void> {
   try {
     const session = await createPaymentSession(planType)
-    
+
     if (session.url) {
       window.location.href = session.url
     } else {
@@ -85,7 +85,7 @@ export async function redirectToCheckout(planType: PlanType): Promise<void> {
 export async function redirectToBillingPortal(): Promise<void> {
   try {
     const session = await createBillingSession()
-    
+
     if (session.url) {
       window.location.href = session.url
     } else {
@@ -179,6 +179,61 @@ export function getSubscriptionDisplayName(subscriptionTier: string): string {
 }
 
 /**
+ * Check if user has premium access (Pro plan)
+ */
+export function isPremiumUser(
+  subscriptionTier?: string | null,
+  subscriptionStatus?: string | null
+): boolean {
+  return (
+    (subscriptionTier === 'monthly' || subscriptionTier === 'yearly') &&
+    subscriptionStatus === 'active'
+  )
+}
+
+/**
+ * Get plan display name for UI
+ */
+export function getPlanDisplayName(
+  subscriptionTier?: string | null,
+  subscriptionStatus?: string | null
+): string {
+  return isPremiumUser(subscriptionTier, subscriptionStatus) ? 'PRO' : 'FREE'
+}
+
+/**
+ * Get plan styling information for consistent UI
+ */
+export function getPlanStyling(
+  subscriptionTier?: string | null,
+  subscriptionStatus?: string | null
+) {
+  const isActivePro = isPremiumUser(subscriptionTier, subscriptionStatus)
+
+  if (isActivePro) {
+    return {
+      color: 'text-yellow-400',
+      bgColor: 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/20',
+      borderColor: 'border-yellow-500/30',
+      badgeColor: 'text-yellow-400',
+      badgeBg: 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/20',
+      badgeBorder: 'border-yellow-500/30',
+      isPro: true,
+    }
+  }
+
+  return {
+    color: 'text-gray-400',
+    bgColor: 'bg-gray-500/20',
+    borderColor: 'border-gray-500/30',
+    badgeColor: 'text-gray-400',
+    badgeBg: 'bg-gray-500/20',
+    badgeBorder: 'border-gray-500/30',
+    isPro: false,
+  }
+}
+
+/**
  * Calculate savings for yearly plan
  */
 export function calculateYearlySavings(): number {
@@ -206,7 +261,7 @@ export function getNextBillingDate(
   currentPeriodEnd: string | null
 ): string | null {
   if (!currentPeriodEnd) return null
-  
+
   try {
     const date = new Date(currentPeriodEnd)
     return date.toLocaleDateString('en-US', {
@@ -227,14 +282,14 @@ export function isSubscriptionExpiringSoon(
   currentPeriodEnd: string | null
 ): boolean {
   if (!currentPeriodEnd) return false
-  
+
   try {
     const endDate = new Date(currentPeriodEnd)
     const now = new Date()
     const daysUntilExpiry = Math.ceil(
       (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     )
-    
+
     return daysUntilExpiry <= 7 && daysUntilExpiry > 0
   } catch (error) {
     console.error('Error checking subscription expiry:', error)

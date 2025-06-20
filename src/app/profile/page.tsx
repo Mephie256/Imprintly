@@ -18,6 +18,7 @@ import {
   Crown,
 } from 'lucide-react'
 import { useUserProfile, useHasPremiumAccess } from '@/contexts/UserContext'
+import { isPremiumUser, getPlanDisplayName } from '@/lib/payment-service'
 
 export default function ProfileSettings() {
   const { user, isLoaded } = useUser()
@@ -176,11 +177,15 @@ export default function ProfileSettings() {
                 <p className="text-gray-400 text-sm">
                   {user.primaryEmailAddress?.emailAddress}
                 </p>
-                <div className="mt-3 px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-medium inline-block">
-                  {userProfile?.subscription_tier === 'premium'
-                    ? 'PRO'
-                    : 'FREE'}{' '}
-                  Plan
+                <div className={`mt-3 px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1.5 ${
+                  isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status)
+                    ? 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 text-yellow-400 border border-yellow-500/30'
+                    : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                }`}>
+                  {isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status) && (
+                    <Crown className="w-3 h-3" />
+                  )}
+                  {getPlanDisplayName(userProfile?.subscription_tier, userProfile?.subscription_status)} Plan
                 </div>
               </div>
 
@@ -423,24 +428,62 @@ export default function ProfileSettings() {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="p-6 bg-white/5 rounded-xl border border-white/10">
+                    <div className={`p-6 rounded-xl border transition-all duration-300 ${
+                      isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status)
+                        ? 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border-yellow-500/30'
+                        : 'bg-white/5 border-white/10'
+                    }`}>
                       <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-white font-medium">
-                            Subscription Plan
-                          </h3>
-                          <p className="text-gray-400 text-sm">
-                            Current plan:{' '}
-                            {userProfile?.subscription_tier === 'premium'
-                              ? 'PRO'
-                              : 'FREE'}
-                          </p>
+                        <div className="flex items-center gap-4">
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                            isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status)
+                              ? 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/20'
+                              : 'bg-gray-500/20'
+                          }`}>
+                            {isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status) ? (
+                              <Crown className="w-6 h-6 text-yellow-400" />
+                            ) : (
+                              <User className="w-6 h-6 text-gray-400" />
+                            )}
+                          </div>
+                          <div>
+                            <h3 className="text-white font-medium flex items-center gap-2">
+                              Subscription Plan
+                              {isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status) && (
+                                <Crown className="w-4 h-4 text-yellow-400" />
+                              )}
+                            </h3>
+                            <p className={`text-sm ${
+                              isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status)
+                                ? 'text-yellow-400'
+                                : 'text-gray-400'
+                            }`}>
+                              Current plan: {getPlanDisplayName(userProfile?.subscription_tier, userProfile?.subscription_status)}
+                              {isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status) && (
+                                <span className="ml-2 text-xs">• Unlimited Access</span>
+                              )}
+                            </p>
+                          </div>
                         </div>
-                        <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors">
-                          {userProfile?.subscription_tier === 'premium'
-                            ? 'Manage'
-                            : 'Upgrade'}
-                        </button>
+                        <Link
+                          href="/dashboard/billing"
+                          className={`px-4 py-2 rounded-lg transition-colors inline-flex items-center gap-2 font-medium ${
+                            isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status)
+                              ? 'bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 border border-yellow-500/30'
+                              : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                          }`}>
+                          {isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status) ? (
+                            <>
+                              <Crown className="w-4 h-4" />
+                              Manage
+                            </>
+                          ) : (
+                            <>
+                              <Crown className="w-4 h-4" />
+                              Upgrade
+                            </>
+                          )}
+                        </Link>
                       </div>
                     </div>
 
