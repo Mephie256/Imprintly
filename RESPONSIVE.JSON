@@ -1,0 +1,239 @@
+{
+  "mobile_responsive_config": {
+    "project_name": "Imprintly Mobile Responsive Redesign",
+    "framework": "React/Next.js",
+    "css_framework": "Tailwind CSS",
+    "breakpoints": {
+      "mobile": "320px - 767px",
+      "tablet": "768px - 1023px",
+      "desktop": "1024px+"
+    },
+    "components": {
+      "header": {
+        "mobile": {
+          "layout": "hamburger_menu",
+          "logo_size": "32px",
+          "hide_elements": ["breadcrumbs", "usage_indicator"],
+          "navigation": "collapsible_sidebar"
+        },
+        "tablet": {
+          "layout": "condensed_horizontal",
+          "logo_size": "40px",
+          "show_essential_nav": true
+        }
+      },
+      "dashboard": {
+        "mobile": {
+          "layout": "single_column",
+          "cards": {
+            "stats": "2x2_grid",
+            "creative_overview": "full_width_stack",
+            "recent_projects": "horizontal_scroll"
+          },
+          "quick_actions": "floating_action_button"
+        },
+        "tablet": {
+          "layout": "two_column",
+          "cards": "responsive_grid"
+        }
+      },
+      "project_gallery": {
+        "mobile": {
+          "grid": "1_column",
+          "card_height": "200px",
+          "image_aspect": "16:9",
+          "text_overlay": "bottom_fade"
+        },
+        "tablet": {
+          "grid": "2_columns",
+          "card_height": "180px"
+        },
+        "desktop": {
+          "grid": "3_columns",
+          "card_height": "160px"
+        }
+      },
+      "editor": {
+        "mobile": {
+          "layout": "stacked_vertical",
+          "canvas": {
+            "position": "top",
+            "height": "50vh",
+            "controls": "overlay_bottom"
+          },
+          "controls_panel": {
+            "position": "bottom",
+            "type": "accordion_tabs",
+            "sections": ["text", "position", "style", "effects"]
+          }
+        },
+        "tablet": {
+          "layout": "side_by_side",
+          "canvas": "60%",
+          "controls_panel": "40%"
+        }
+      }
+    },
+    "responsive_rules": {
+      "typography": {
+        "mobile": {
+          "heading_h1": "24px",
+          "heading_h2": "20px",
+          "heading_h3": "18px",
+          "body": "14px",
+          "small": "12px"
+        },
+        "tablet": {
+          "heading_h1": "32px",
+          "heading_h2": "24px",
+          "heading_h3": "20px",
+          "body": "16px",
+          "small": "14px"
+        }
+      },
+      "spacing": {
+        "mobile": {
+          "container_padding": "16px",
+          "section_margin": "24px",
+          "card_padding": "16px",
+          "button_padding": "12px 16px"
+        },
+        "tablet": {
+          "container_padding": "24px",
+          "section_margin": "32px",
+          "card_padding": "20px",
+          "button_padding": "14px 20px"
+        }
+      },
+      "buttons": {
+        "mobile": {
+          "min_height": "44px",
+          "font_size": "16px",
+          "full_width_primary": true
+        },
+        "tablet": {
+          "min_height": "40px",
+          "font_size": "14px",
+          "full_width_primary": false
+        }
+      }
+    },
+    "navigation_improvements": {
+      "mobile": {
+        "type": "bottom_tab_bar",
+        "items": [
+          { "icon": "dashboard", "label": "Dashboard", "route": "/dashboard" },
+          { "icon": "create", "label": "Create", "route": "/create" },
+          { "icon": "projects", "label": "Projects", "route": "/projects" },
+          { "icon": "profile", "label": "Profile", "route": "/profile" }
+        ]
+      },
+      "tablet": {
+        "type": "collapsible_sidebar",
+        "width": "240px",
+        "collapse_width": "60px"
+      }
+    },
+    "touch_optimizations": {
+      "min_touch_target": "44px",
+      "swipe_gestures": {
+        "project_gallery": "horizontal_scroll",
+        "editor_tabs": "swipe_between_tabs"
+      },
+      "pull_to_refresh": {
+        "dashboard": true,
+        "projects": true
+      }
+    },
+    "performance_optimizations": {
+      "lazy_loading": {
+        "images": true,
+        "components": ["project_gallery", "dashboard_charts"]
+      },
+      "image_optimization": {
+        "formats": ["webp", "avif"],
+        "responsive_sizes": [320, 640, 1024, 1440],
+        "placeholder": "blur"
+      }
+    },
+    "specific_page_configs": {
+      "dashboard": {
+        "mobile_layout": {
+          "header": "condensed",
+          "welcome_section": "full_width",
+          "stats_cards": "2x2_grid",
+          "creative_overview": "collapsible_section",
+          "recent_projects": "horizontal_carousel",
+          "quick_actions": "floating_button"
+        }
+      },
+      "text_behind_creator": {
+        "mobile_layout": {
+          "step_1": "image_upload_full_width",
+          "step_2": "text_input_drawer",
+          "step_3": "preview_full_screen",
+          "controls": "bottom_sheet"
+        }
+      },
+      "project_editor": {
+        "mobile_layout": {
+          "canvas": "full_width_top",
+          "text_controls": "bottom_sheet_tabs",
+          "font_size_slider": "full_width",
+          "position_controls": "drag_handles_on_canvas",
+          "action_buttons": "sticky_bottom_bar"
+        }
+      }
+    },
+    "css_implementation": {
+      "container_queries": true,
+      "css_grid": {
+        "dashboard": "repeat(auto-fit, minmax(280px, 1fr))",
+        "project_gallery": "repeat(auto-fit, minmax(300px, 1fr))"
+      },
+      "flexbox_utilities": [
+        "flex-col md:flex-row",
+        "gap-4 md:gap-6",
+        "p-4 md:p-6 lg:p-8"
+      ]
+    },
+    "accessibility": {
+      "focus_management": true,
+      "keyboard_navigation": true,
+      "screen_reader_support": true,
+      "high_contrast_mode": true,
+      "reduced_motion": true
+    },
+    "dark_mode": {
+      "supported": true,
+      "toggle_position": "header_right",
+      "storage": "localStorage"
+    }
+  },
+  "implementation_priority": [
+    "1. Setup responsive breakpoints and container queries",
+    "2. Implement mobile navigation (bottom tabs)",
+    "3. Redesign dashboard for mobile (single column layout)",
+    "4. Optimize editor interface for touch devices",
+    "5. Implement swipe gestures and touch interactions",
+    "6. Add performance optimizations (lazy loading, image optimization)",
+    "7. Test and refine across all device sizes"
+  ],
+  "cursor_ai_instructions": {
+    "focus_areas": [
+      "Use Tailwind CSS responsive utilities (sm:, md:, lg:, xl:)",
+      "Implement CSS Grid and Flexbox for layout flexibility",
+      "Create reusable responsive components",
+      "Optimize for touch interactions on mobile devices",
+      "Ensure proper spacing and typography scaling",
+      "Implement proper image optimization",
+      "Add smooth transitions and animations"
+    ],
+    "code_patterns": {
+      "responsive_grid": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
+      "mobile_first": "text-sm md:text-base lg:text-lg",
+      "touch_friendly": "min-h-[44px] px-4 py-3",
+      "safe_areas": "pb-safe-bottom pl-safe-left pr-safe-right"
+    }
+  }
+}

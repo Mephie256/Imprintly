@@ -69,10 +69,38 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       // First try to get existing profile
       let profile = await getUserProfile(user.id)
 
-      // If no profile exists, sync with Clerk data
+      // If no profile exists, sync with Clerk data (with timeout)
       if (!profile) {
         console.log('No profile found, syncing with Clerk...')
-        profile = await syncUserWithSupabase(user)
+        try {
+          // Add timeout to prevent hanging
+          const syncPromise = syncUserWithSupabase(user)
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Sync timeout')), 5000)
+          )
+          profile = await Promise.race([syncPromise, timeoutPromise]) as any
+        } catch (syncError) {
+          console.warn('Sync failed or timed out, using mock profile:', syncError)
+          // Fall back to mock profile if sync fails
+          const firstName = user.firstName || ''
+          const lastName = user.lastName || ''
+          const fullName = `${firstName} ${lastName}`.trim() || 'User'
+
+          profile = {
+            id: 'temp-' + user.id,
+            clerk_user_id: user.id,
+            email: user.emailAddresses?.[0]?.emailAddress || '',
+            first_name: firstName,
+            last_name: lastName,
+            full_name: fullName,
+            avatar_url: user.imageUrl || null,
+            subscription_tier: 'free',
+            usage_count: 0,
+            preferences: {},
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+        }
       }
 
       setUserProfile(profile)

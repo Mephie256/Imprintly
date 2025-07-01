@@ -59,12 +59,18 @@ export async function POST(req: NextRequest) {
         const user = evt.data
         console.log('Syncing user with Supabase:', user.id)
 
-        const syncResult = await syncUserWithSupabase(user)
-        if (syncResult) {
-          console.log('User synced successfully:', syncResult.id)
-        } else {
-          console.error('Failed to sync user with Supabase')
-        }
+        // Process sync in background to avoid blocking the webhook response
+        syncUserWithSupabase(user)
+          .then((syncResult) => {
+            if (syncResult) {
+              console.log('User synced successfully:', syncResult.id)
+            } else {
+              console.error('Failed to sync user with Supabase')
+            }
+          })
+          .catch((error) => {
+            console.error('Error syncing user:', error)
+          })
         break
 
       case 'user.deleted':

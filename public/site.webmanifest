@@ -10,13 +10,13 @@
   "scope": "/",
   "icons": [
     {
-      "src": "https://i.ibb.co/0RYBCCPp/imageedit-3-7315062423.png",
+      "src": "/ionc.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "https://i.ibb.co/0RYBCCPp/imageedit-3-7315062423.png",
+      "src": "/ionc.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
