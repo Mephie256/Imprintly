@@ -25,6 +25,7 @@ import {
   Bebas_Neue,
 } from 'next/font/google'
 import './globals.css'
+import './fonts.css'
 import { UserProvider } from '@/contexts/UserContext'
 import DevNotice from '@/components/DevNotice'
 
@@ -187,8 +188,17 @@ export default function RootLayout({
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <html lang="en" suppressHydrationWarning>
         <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+          />
           <meta name="theme-color" content="#10b981" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent"
+          />
+          <meta name="mobile-web-app-capable" content="yes" />
           {/* Favicon - Using ionc.png */}
           <link rel="icon" type="image/png" href="/ionc.png" />
           <link rel="shortcut icon" href="/ionc.png" />

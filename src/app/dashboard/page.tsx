@@ -53,7 +53,6 @@ export default function Dashboard() {
   const [isUpgrading, setIsUpgrading] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
-
   // Get plan-specific information with Pro styling
   const getPlanInfo = () => {
     const tier = userProfile?.subscription_tier || 'free'
@@ -224,8 +223,6 @@ export default function Dashboard() {
     }
   }
 
-
-
   if (loading) {
     return (
       <div className="bg-gray-900 text-gray-300 min-h-screen relative modern-background flex items-center justify-center">
@@ -244,103 +241,188 @@ export default function Dashboard() {
 
   return (
     <div className="bg-gray-900 text-gray-300 min-h-screen relative modern-background">
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-sm border-t border-white/10">
+        <div className="flex items-center justify-around py-2 px-4">
+          <Link
+            href="/dashboard"
+            className="flex flex-col items-center p-2 text-emerald-400">
+            <LayoutDashboard className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Dashboard</span>
+          </Link>
+          <Link
+            href="/create"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <Plus className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Create</span>
+          </Link>
+          <Link
+            href="/dashboard/projects"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <FolderOpen className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Projects</span>
+          </Link>
+          <Link
+            href="/dashboard/billing"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <User className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Account</span>
+          </Link>
+        </div>
+      </div>
+
       <div className="relative z-10 flex">
-        {/* Sidebar Navigation */}
-        <div className="w-64 bg-white/5 backdrop-blur-sm border-r border-white/10 min-h-screen">
-          <div className="p-6">
+        {/* Desktop Sidebar Navigation */}
+        <div className="hidden md:block w-72 bg-gray-950/80 backdrop-blur-xl border-r border-gray-800/50 min-h-screen fixed left-0 top-0 z-30 overflow-y-auto">
+          <div className="p-8">
             {/* App Logo */}
             <Link
               href="/"
-              className="inline-flex items-center space-x-3 group mb-8">
+              className="inline-flex items-center space-x-3 group mb-12 transition-all duration-300 hover:scale-[1.02]">
               <div className="relative">
-                <Image
-                  src="https://i.ibb.co/0RYBCCPp/imageedit-3-7315062423.png"
-                  alt="Imprintly Logo"
-                  width={40}
-                  height={40}
-                  className="transition-transform duration-200 group-hover:scale-110"
-                  priority
-                />
-                <div className="absolute inset-0 bg-emerald-400/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 blur-xl"></div>
+                <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg shadow-black/25 border border-gray-700/50">
+                  <Image
+                    src="https://i.ibb.co/0RYBCCPp/imageedit-3-7315062423.png"
+                    alt="Imprintly Logo"
+                    width={28}
+                    height={28}
+                    className="transition-transform duration-200"
+                    priority
+                  />
+                </div>
+                <div className="absolute inset-0 bg-emerald-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></div>
               </div>
               <div>
-                <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
                   Imprintly
                 </span>
+                <div className="text-xs text-gray-400 font-medium">
+                  Creative Studio
+                </div>
               </div>
             </Link>
 
             {/* Navigation Menu */}
-            <nav className="space-y-2">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-                MAIN MENU
+            <nav className="space-y-3">
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-6 px-3">
+                Workspace
               </div>
 
               <Link
                 href="/dashboard"
-                className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <LayoutDashboard className="w-5 h-5" />
-                <span className="font-medium">Dashboard</span>
+                className="group flex items-center space-x-4 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/5 transition-all duration-300 hover:shadow-emerald-500/10 hover:scale-[1.02]">
+                <div className="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                  <LayoutDashboard className="w-4 h-4" />
+                </div>
+                <span className="font-semibold">Dashboard</span>
+                <div className="ml-auto w-2 h-2 bg-emerald-400 rounded-full opacity-80"></div>
               </Link>
 
               <Link
                 href="/create"
-                className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all duration-200">
-                <Plus className="w-5 h-5" />
-                <span className="font-medium">Create</span>
+                className="group flex items-center space-x-4 px-4 py-3.5 rounded-2xl text-gray-300 hover:bg-gray-800/50 hover:text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+                <div className="w-6 h-6 bg-gray-700/50 rounded-lg flex items-center justify-center group-hover:bg-gray-600/50 transition-colors">
+                  <Plus className="w-4 h-4" />
+                </div>
+                <span className="font-medium">Create Project</span>
               </Link>
 
               <Link
                 href="/dashboard/projects"
-                className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all duration-200">
-                <FolderOpen className="w-5 h-5" />
+                className="group flex items-center space-x-4 px-4 py-3.5 rounded-2xl text-gray-300 hover:bg-gray-800/50 hover:text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+                <div className="w-6 h-6 bg-gray-700/50 rounded-lg flex items-center justify-center group-hover:bg-gray-600/50 transition-colors">
+                  <FolderOpen className="w-4 h-4" />
+                </div>
                 <span className="font-medium">Projects</span>
               </Link>
 
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 mt-8">
-                OTHERS
+              <div className="pt-6 border-t border-gray-800/50">
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 px-3">
+                  Account
+                </div>
+
+                <Link
+                  href="/dashboard/billing"
+                  className="group flex items-center space-x-4 px-4 py-3.5 rounded-2xl text-gray-300 hover:bg-gray-800/50 hover:text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+                  <div className="w-6 h-6 bg-gray-700/50 rounded-lg flex items-center justify-center group-hover:bg-gray-600/50 transition-colors">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <span className="font-medium">Billing</span>
+                </Link>
+
+                <button
+                  onClick={() => {
+                    console.log('🔄 Manual refresh triggered')
+                    loadProjects()
+                  }}
+                  className="group flex items-center space-x-4 px-4 py-3.5 rounded-2xl text-gray-300 hover:bg-gray-800/50 hover:text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg w-full text-left">
+                  <div className="w-6 h-6 bg-gray-700/50 rounded-lg flex items-center justify-center group-hover:bg-gray-600/50 transition-colors">
+                    <RefreshCw className="w-4 h-4" />
+                  </div>
+                  <span className="font-medium">Refresh</span>
+                </button>
               </div>
-
-              <button
-                onClick={() => {
-                  console.log('🔄 Manual refresh triggered')
-                  loadProjects()
-                }}
-                className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all duration-200 w-full text-left">
-                <RefreshCw className="w-5 h-5" />
-                <span className="font-medium">Refresh Projects</span>
-              </button>
-
-
             </nav>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1">
-          <div className="p-8">
-            {/* Header - Enhanced with Profile */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-2xl font-bold text-white mb-2">
-                  Welcome back,{' '}
-                  {userProfile?.first_name || user?.firstName || 'Creator'}! 👋
-                </h1>
-                <p className="text-gray-400 text-sm">
-                  Here's what's happening with your projects today.
+        <div className="flex-1 md:ml-72 pb-20 md:pb-0">
+          {/* Premium Header */}
+          <div className="sticky top-0 z-40 bg-gray-950/90 backdrop-blur-xl border-b border-gray-800/50 p-6 md:p-8">
+            <div className="flex flex-col space-y-6 md:flex-row md:items-center md:justify-between md:space-y-0">
+              {/* Mobile: Logo and Profile Row */}
+              <div className="flex items-center justify-between md:hidden">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                    <Image
+                      src="https://i.ibb.co/0RYBCCPp/imageedit-3-7315062423.png"
+                      alt="Imprintly Logo"
+                      width={24}
+                      height={24}
+                      priority
+                    />
+                  </div>
+                  <span className="text-lg font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+                    Imprintly
+                  </span>
+                </div>
+                <ClientOnly>
+                  <ProfileDropdown />
+                </ClientOnly>
+              </div>
+
+              {/* Welcome Message */}
+              <div className="md:flex-1">
+                <div className="flex items-center space-x-3 mb-2">
+                  <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+                    Welcome back,{' '}
+                    {userProfile?.first_name || user?.firstName || 'Creator'}
+                  </h1>
+                  <div className="text-2xl">👋</div>
+                </div>
+                <p className="text-gray-400 text-base hidden md:block font-medium">
+                  Here's what's happening with your creative projects today.
                 </p>
               </div>
 
-              {/* Right Side - Usage Indicator and Profile */}
-              <div className="flex items-center space-x-4">
-                {/* Refresh Button */}
+              {/* Mobile: Usage Summary */}
+              <div className="flex items-center justify-between md:hidden bg-white/5 rounded-xl p-3">
+                <div className="flex items-center space-x-2">
+                  <div className="text-xs text-gray-400">Usage:</div>
+                  <div className="text-sm font-semibold text-emerald-400">
+                    {planInfo.isUnlimited
+                      ? '∞'
+                      : `${currentUsage}/${currentLimit}`}
+                  </div>
+                </div>
                 <button
                   onClick={() => {
                     console.log('🔄 Manual refresh triggered')
                     loadProjects()
                   }}
                   disabled={loadingProjects}
-                  className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 text-white rounded-lg transition-all duration-200 border border-white/20 hover:border-white/30 disabled:cursor-not-allowed"
+                  className="p-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 text-white rounded-lg transition-all duration-200"
                   title="Refresh Projects">
                   <RefreshCw
                     className={`w-4 h-4 ${
@@ -348,8 +430,28 @@ export default function Dashboard() {
                     }`}
                   />
                 </button>
-                {/* Circular Usage Indicator */}
-                <div className="relative">
+              </div>
+
+              {/* Desktop: Usage and Profile */}
+              <div className="hidden md:flex items-center space-x-4">
+                {/* Refresh Button */}
+                <button
+                  onClick={() => {
+                    console.log('🔄 Manual refresh triggered')
+                    loadProjects()
+                  }}
+                  disabled={loadingProjects}
+                  className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 text-white rounded-lg transition-all duration-200 border border-white/20 hover:border-white/30 disabled:cursor-not-allowed touch-target"
+                  title="Refresh Projects">
+                  <RefreshCw
+                    className={`w-4 h-4 ${
+                      loadingProjects ? 'animate-spin' : ''
+                    }`}
+                  />
+                </button>
+
+                {/* Circular Usage Indicator - Hidden on Mobile */}
+                <div className="relative hidden md:block">
                   <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center relative overflow-hidden">
                     {/* Progress Ring */}
                     <svg
@@ -414,135 +516,157 @@ export default function Dashboard() {
                 </ClientOnly>
               </div>
             </div>
+          </div>
 
-            {/* Stats Cards - Template Style */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {/* Main Content Area */}
+          <div className="p-6 md:p-8 space-y-8 overflow-y-auto">
+            {/* Premium Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Images Created */}
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all duration-300">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-                    <Images className="w-4 h-4 text-emerald-400" />
+              <div className="group bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50 hover:border-emerald-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:scale-[1.02]">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Images className="w-6 h-6 text-emerald-400" />
                   </div>
-                  <div className="text-emerald-400 text-xs font-medium bg-emerald-500/10 px-2 py-1 rounded-md">
+                  <div className="text-emerald-400 text-sm font-bold bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20">
                     {planInfo.isUnlimited
-                      ? 'Unlimited'
+                      ? '∞'
                       : `${currentUsage}/${currentLimit}`}
                   </div>
                 </div>
-                <div className="text-xl font-bold text-white mb-1">
+                <div className="text-3xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent mb-2">
                   {currentUsage.toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-400">
-                  Images Created{' '}
-                  {planInfo.isUnlimited
-                    ? '(Unlimited)'
-                    : `(${currentLimit} limit)`}
+                <div className="text-sm text-gray-400 font-medium">
+                  Images Created
+                  <span className="hidden lg:block text-xs text-gray-500 mt-1">
+                    {planInfo.isUnlimited
+                      ? 'Unlimited plan'
+                      : `${currentLimit} per month limit`}
+                  </span>
                 </div>
               </div>
 
               {/* Total Projects */}
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all duration-300">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                    <FolderOpen className="w-4 h-4 text-blue-400" />
+              <div className="group bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50 hover:border-blue-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:scale-[1.02]">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <FolderOpen className="w-6 h-6 text-blue-400" />
                   </div>
-                  <div className="text-blue-400 text-xs font-medium bg-blue-500/10 px-2 py-1 rounded-md">
-                    +{projects.length}%
+                  <div className="text-blue-400 text-sm font-bold bg-blue-500/10 px-3 py-1.5 rounded-xl border border-blue-500/20">
+                    +{projects.length}
                   </div>
                 </div>
-                <div className="text-xl font-bold text-white mb-1">
+                <div className="text-3xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent mb-2">
                   {projects.length.toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-400">Total Projects</div>
+                <div className="text-sm text-gray-400 font-medium">
+                  Total Projects
+                  <div className="text-xs text-gray-500 mt-1">
+                    Active workspace
+                  </div>
+                </div>
               </div>
 
               {/* Remaining Usage */}
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all duration-300">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 text-purple-400" />
+              <div className="group bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50 hover:border-purple-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 hover:scale-[1.02]">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <TrendingUp className="w-6 h-6 text-purple-400" />
                   </div>
-                  <div className="text-purple-400 text-xs font-medium bg-purple-500/10 px-2 py-1 rounded-md">
+                  <div className="text-purple-400 text-sm font-bold bg-purple-500/10 px-3 py-1.5 rounded-xl border border-purple-500/20">
                     {planInfo.isUnlimited
                       ? '∞'
                       : `${Math.round(usagePercentage)}%`}
                   </div>
                 </div>
-                <div className="text-xl font-bold text-white mb-1">
+                <div className="text-3xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent mb-2">
                   {planInfo.isUnlimited ? '∞' : remainingUsage.toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-400">
-                  {planInfo.isUnlimited ? 'Unlimited Usage' : 'Remaining'}
+                <div className="text-sm text-gray-400 font-medium">
+                  {planInfo.isUnlimited
+                    ? 'Unlimited Usage'
+                    : 'Remaining Credits'}
+                  <div className="text-xs text-gray-500 mt-1">
+                    {planInfo.isUnlimited ? 'Pro plan active' : 'This month'}
+                  </div>
                 </div>
               </div>
 
-              {/* Plan Status - Pro Styling */}
+              {/* Plan Status - Premium Styling */}
               <div
-                className={`bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all duration-300 ${planInfo.borderColor}`}>
-                <div className="flex items-center justify-between mb-3">
+                className={`group bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] ${
+                  planInfo.isPro
+                    ? 'border-yellow-500/30 hover:border-yellow-400/50 hover:shadow-yellow-500/10'
+                    : 'border-gray-700/50 hover:border-gray-600/50 hover:shadow-gray-500/10'
+                }`}>
+                <div className="flex items-center justify-between mb-4">
                   <div
-                    className={`w-8 h-8 ${planInfo.bgColor} rounded-lg flex items-center justify-center`}>
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ${
+                      planInfo.isPro
+                        ? 'bg-gradient-to-br from-yellow-500/20 to-yellow-600/20'
+                        : 'bg-gradient-to-br from-gray-500/20 to-gray-600/20'
+                    }`}>
                     {planInfo.isPro ? (
-                      <Crown className={`w-4 h-4 ${planInfo.color}`} />
+                      <Crown className="w-6 h-6 text-yellow-400" />
                     ) : (
-                      <User className={`w-4 h-4 ${planInfo.color}`} />
+                      <User className="w-6 h-6 text-gray-400" />
                     )}
                   </div>
 
-                  {/* Beautiful Pro Badge */}
+                  {/* Premium Badge */}
                   <div
-                    className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg ${planInfo.badgeBg} ${planInfo.badgeColor} border ${planInfo.badgeBorder}`}>
-                    {planInfo.isPro && <Crown className="w-3 h-3" />}
-                    <span>{planInfo.displayName}</span>
+                    className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border ${
+                      planInfo.isPro
+                        ? 'bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 text-yellow-400 border-yellow-500/20'
+                        : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                    }`}>
+                    {planInfo.isPro && <Crown className="w-4 h-4" />}
+                    <span>{planInfo.isPro ? 'PRO' : 'FREE'}</span>
                   </div>
                 </div>
 
-                <div className="text-xl font-bold text-white mb-1">
-                  {planInfo.isPro ? (
-                    <div className="flex items-center gap-2">
-                      <span>{planInfo.name.toUpperCase()}</span>
-                      <Crown className="w-5 h-5 text-yellow-400" />
-                    </div>
-                  ) : (
-                    planInfo.name.toUpperCase()
-                  )}
+                <div className="text-3xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent mb-2">
+                  {planInfo.isPro ? 'PRO PLAN' : 'FREE PLAN'}
                 </div>
 
-                <div className="text-xs text-gray-400">
-                  Current Plan •{' '}
-                  {planInfo.isUnlimited
-                    ? 'Unlimited'
-                    : `${currentLimit} images`}
+                <div className="text-sm text-gray-400 font-medium">
+                  Current Subscription
+                  <div className="text-xs text-gray-500 mt-1">
+                    {planInfo.isUnlimited
+                      ? 'Unlimited access'
+                      : `${currentLimit} images per month`}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Overview Section - Inspired by Music App Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-              {/* Main Overview Card - Like the "Blinding Lights" card */}
-              <div className="lg:col-span-2 bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
-                <div className="flex items-center justify-between mb-8">
+            {/* Overview Section - Mobile Responsive */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mb-8 md:mb-12">
+              {/* Main Overview Card */}
+              <div className="lg:col-span-2 bg-white/5 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-6 lg:p-8 border border-white/10 hover:border-white/20 transition-all duration-300">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 space-y-3 md:space-y-0">
                   <div>
-                    <h3 className="text-2xl font-bold text-white mb-2">
+                    <h3 className="text-xl md:text-2xl font-bold text-white mb-1 md:mb-2">
                       Creative Overview
                     </h3>
-                    <p className="text-gray-400">
+                    <p className="text-gray-400 text-sm md:text-base">
                       Your creative journey this month
                     </p>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-400 bg-white/5 px-3 py-2 rounded-full">
+                  <div className="flex items-center space-x-2 text-sm text-gray-400 bg-white/5 px-3 py-2 rounded-full self-start md:self-auto">
                     <Calendar className="w-4 h-4" />
                     <span>This month</span>
                   </div>
                 </div>
 
-                {/* Mini Stats - Like the numbered cards */}
-                <div className="grid grid-cols-3 gap-6 mb-8">
-                  <div className="bg-white/5 rounded-2xl p-4 text-center hover:bg-white/10 transition-all duration-300">
-                    <div className="text-3xl font-bold text-emerald-400 mb-2">
+                {/* Mini Stats - Mobile Responsive */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+                  <div className="bg-white/5 rounded-xl md:rounded-2xl p-3 md:p-4 text-center hover:bg-white/10 transition-all duration-300">
+                    <div className="text-2xl md:text-3xl font-bold text-emerald-400 mb-1 md:mb-2">
                       {currentUsage}
                     </div>
-                    <div className="text-sm text-gray-400 mb-2">
+                    <div className="text-sm text-gray-400 mb-1 md:mb-2">
                       Images Created
                     </div>
                     <div className="flex items-center justify-center">
@@ -554,13 +678,17 @@ export default function Dashboard() {
                           ? 'Great start! 🚀'
                           : currentUsage === 2
                           ? 'Building momentum! ⚡'
-                          : currentUsage >= 3 && planInfo.isUnlimited
+                          : currentUsage === 3
+                          ? 'Halfway there! 💪'
+                          : currentUsage === 4
+                          ? 'Almost there! 🎯'
+                          : currentUsage === 5
+                          ? 'One more left! ⭐'
+                          : currentUsage >= 6 && planInfo.isUnlimited
                           ? 'Pro creator! 🔥'
-                          : currentUsage >= 3
-                          ? 'Limit reached'
-                          : `+${Math.round(
-                              (currentUsage / Math.max(currentUsage, 1)) * 100
-                            )}% active`}
+                          : currentUsage >= 6
+                          ? 'Monthly limit reached'
+                          : `${currentUsage}/6 this month`}
                       </span>
                     </div>
                   </div>
@@ -625,7 +753,9 @@ export default function Dashboard() {
                     <span className="text-gray-400 text-sm">
                       {planInfo.isUnlimited
                         ? `${currentUsage} images created`
-                        : `${Math.round(usagePercentage)}% of ${currentLimit}`}
+                        : `${Math.round(
+                            usagePercentage
+                          )}% of ${currentLimit} per month`}
                     </span>
                   </div>
                   {planInfo.isUnlimited ? (

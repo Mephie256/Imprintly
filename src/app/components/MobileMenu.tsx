@@ -13,16 +13,16 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ setIsOpen }) => {
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="md:hidden mt-3 py-3 bg-gray-800/90 backdrop-blur-md shadow-lg rounded-md">
+      className="md:hidden mt-3 py-3 bg-gray-800/90 backdrop-blur-md shadow-lg rounded-xl mx-4 border border-white/10">
       <Link
         href="#features"
-        className="block px-4 py-2 text-sm hover:bg-gray-700/70 transition-colors"
+        className="block px-4 py-3 text-sm hover:bg-gray-700/70 transition-colors touch-target"
         onClick={() => setIsOpen(false)}>
         <motion.span whileHover={{ scale: 1.05 }}>Features</motion.span>
       </Link>
       <Link
         href="#pricing"
-        className="block px-4 py-2 text-sm hover:bg-gray-700/70 transition-colors"
+        className="block px-4 py-3 text-sm hover:bg-gray-700/70 transition-colors touch-target"
         onClick={() => setIsOpen(false)}>
         <motion.span whileHover={{ scale: 1.05 }}>Pricing</motion.span>
       </Link>
@@ -30,13 +30,13 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ setIsOpen }) => {
       <SignedOut>
         <Link
           href="/auth/custom-login"
-          className="block px-4 py-2 text-sm hover:bg-gray-700/70 transition-colors"
+          className="block px-4 py-3 text-sm hover:bg-gray-700/70 transition-colors touch-target"
           onClick={() => setIsOpen(false)}>
           <motion.span whileHover={{ scale: 1.05 }}>Log In</motion.span>
         </Link>
         <Link
           href="/auth/custom-signup"
-          className="block px-4 py-2 text-sm text-green-400 hover:bg-gray-700/70 transition-colors font-semibold"
+          className="block px-4 py-3 text-sm text-emerald-400 hover:bg-gray-700/70 transition-colors font-semibold touch-target"
           onClick={() => setIsOpen(false)}>
           <motion.span whileHover={{ scale: 1.05 }}>Get Started</motion.span>
         </Link>

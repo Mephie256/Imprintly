@@ -15,7 +15,7 @@ export interface UserProfile {
   subscription_tier: 'free' | 'monthly' | 'yearly'
   subscription_status?: string | null
   stripe_customer_id?: string | null
-  stripe_subscription_id?: string | null
+  subscription_id?: string | null
   subscription_current_period_start?: string | null
   subscription_current_period_end?: string | null
   usage_count: number

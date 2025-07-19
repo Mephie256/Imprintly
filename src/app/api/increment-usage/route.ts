@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     // 4. Calculate remaining usage
     const limits = {
-      free: 3,
+      free: 6,
       monthly: 1000,
       yearly: 10000,
     }

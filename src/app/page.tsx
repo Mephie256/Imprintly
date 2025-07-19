@@ -92,7 +92,7 @@ const LandingPageV2 = () => {
       <Navbar />
 
       {/* Main Content Area: Contains all primary sections of the landing page. */}
-      <main className="flex-grow pt-16 sm:pt-20">
+      <main className="flex-grow pt-16 sm:pt-20 safe-area-insets">
         {/* Hero Section: Features the main headline, call-to-action buttons, and image comparison. */}
         <HeroSection staggerContainer={staggerContainer} fadeInUp={fadeInUp} />
 

@@ -36,6 +36,7 @@ import {
   Sparkles,
   LayoutDashboard,
   RefreshCw,
+  User,
 } from 'lucide-react'
 
 export default function ProjectsPage() {
@@ -126,9 +127,39 @@ export default function ProjectsPage() {
 
   return (
     <div className="bg-gray-900 text-gray-300 min-h-screen relative modern-background">
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-sm border-t border-white/10">
+        <div className="flex items-center justify-around py-2 px-4">
+          <Link
+            href="/dashboard"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <LayoutDashboard className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Dashboard</span>
+          </Link>
+          <Link
+            href="/create"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <Plus className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Create</span>
+          </Link>
+          <Link
+            href="/dashboard/projects"
+            className="flex flex-col items-center p-2 text-emerald-400">
+            <FolderOpen className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Projects</span>
+          </Link>
+          <Link
+            href="/dashboard/billing"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <User className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Account</span>
+          </Link>
+        </div>
+      </div>
+
       <div className="relative z-10 flex">
-        {/* Sidebar Navigation - Matching Dashboard */}
-        <div className="w-64 bg-white/5 backdrop-blur-sm border-r border-white/10 min-h-screen">
+        {/* Desktop Sidebar Navigation */}
+        <div className="hidden md:block w-64 bg-white/5 backdrop-blur-sm border-r border-white/10 min-h-screen fixed left-0 top-0 z-30 overflow-y-auto">
           <div className="p-6">
             {/* App Logo */}
             <Link
@@ -194,12 +225,33 @@ export default function ProjectsPage() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1">
-          <div className="p-8">
-            {/* Header - Matching Dashboard Style */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-2xl font-bold text-white mb-2">
+        <div className="flex-1 md:ml-64 pb-20 md:pb-0">
+          {/* Mobile Header */}
+          <div className="sticky top-0 z-40 bg-gray-900/95 backdrop-blur-sm border-b border-white/10 p-4 md:p-6">
+            <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+              {/* Mobile: Logo and Profile Row */}
+              <div className="flex items-center justify-between md:hidden">
+                <div className="flex items-center space-x-3">
+                  <Image
+                    src="https://i.ibb.co/0RYBCCPp/imageedit-3-7315062423.png"
+                    alt="Imprintly Logo"
+                    width={32}
+                    height={32}
+                    className="rounded-lg"
+                    priority
+                  />
+                  <span className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
+                    Imprintly
+                  </span>
+                </div>
+                <ClientOnly>
+                  <ProfileDropdown />
+                </ClientOnly>
+              </div>
+
+              {/* Projects Title */}
+              <div className="md:flex-1">
+                <h1 className="text-xl md:text-2xl font-bold text-white mb-1 md:mb-2">
                   My Projects 📁
                 </h1>
                 <p className="text-gray-400 text-sm">
@@ -209,8 +261,27 @@ export default function ProjectsPage() {
                 </p>
               </div>
 
-              {/* Right Side - Usage Indicator and Profile */}
-              <div className="flex items-center space-x-4">
+              {/* Mobile: Usage Summary */}
+              <div className="flex items-center justify-between md:hidden bg-white/5 rounded-xl p-3">
+                <div className="flex items-center space-x-2">
+                  <div className="text-xs text-gray-400">Usage:</div>
+                  <div className="text-sm font-semibold text-emerald-400">
+                    {currentUsage}/{currentLimit}
+                  </div>
+                </div>
+                <button
+                  onClick={loadProjects}
+                  disabled={loading}
+                  className="p-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 text-white rounded-lg transition-all duration-200"
+                  title="Refresh Projects">
+                  <RefreshCw
+                    className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
+                  />
+                </button>
+              </div>
+
+              {/* Desktop: Usage and Profile */}
+              <div className="hidden md:flex items-center space-x-4">
                 {/* Circular Usage Indicator - Same as Dashboard */}
                 <div className="relative">
                   <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center relative overflow-hidden">
@@ -277,67 +348,71 @@ export default function ProjectsPage() {
                 </ClientOnly>
               </div>
             </div>
-            {/* Controls Bar - Dashboard Style */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-6 border border-white/10 mb-8">
-              <div className="flex flex-col sm:flex-row gap-4">
+          </div>
+
+          {/* Main Content Area */}
+          <div className="p-4 md:p-6 space-y-6 overflow-y-auto">
+            {/* Controls Bar - Mobile Responsive */}
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-6 border border-white/10">
+              <div className="flex flex-col md:flex-row gap-4">
                 {/* Search */}
                 <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                   <input
                     type="text"
                     placeholder="Search your projects..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all duration-200 text-lg"
+                    className="w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all duration-200 text-base md:text-lg"
                   />
                 </div>
 
                 {/* Filters */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 md:gap-3">
                   <select
                     value={filterBy}
                     onChange={(e) => setFilterBy(e.target.value as any)}
-                    className="px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all duration-200 text-lg">
+                    className="px-3 md:px-6 py-3 md:py-4 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl text-white focus:outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all duration-200 text-sm md:text-lg">
                     <option value="all">All Projects</option>
-                    <option value="recent">Recent (7 days)</option>
-                    <option value="public">Public Projects</option>
+                    <option value="recent">Recent</option>
+                    <option value="public">Public</option>
                   </select>
 
-                  <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl p-2">
+                  <div className="flex items-center bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-1 md:p-2">
                     <button
                       onClick={() => setViewMode('grid')}
-                      className={`p-3 rounded-xl transition-all duration-200 ${
+                      className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all duration-200 ${
                         viewMode === 'grid'
                           ? 'bg-emerald-600 text-white shadow-lg'
                           : 'text-gray-400 hover:text-white hover:bg-white/5'
                       }`}>
-                      <Grid3X3 className="w-5 h-5" />
+                      <Grid3X3 className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                     <button
                       onClick={() => setViewMode('list')}
-                      className={`p-3 rounded-xl transition-all duration-200 ${
+                      className={`p-2 md:p-3 rounded-lg md:rounded-xl transition-all duration-200 ${
                         viewMode === 'list'
                           ? 'bg-emerald-600 text-white shadow-lg'
                           : 'text-gray-400 hover:text-white hover:bg-white/5'
                       }`}>
-                      <List className="w-5 h-5" />
+                      <List className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Projects Grid/List - Dashboard Style */}
+            {/* Projects Grid/List - Mobile Responsive */}
             {loadingProjects ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                 {[...Array(6)].map((_, i) => (
                   <div
                     key={i}
-                    className="bg-white/5 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/10">
+                    className="bg-white/5 backdrop-blur-sm rounded-2xl md:rounded-3xl overflow-hidden border border-white/10">
                     <div className="aspect-video bg-gray-700/50 animate-pulse"></div>
-                    <div className="p-6">
-                      <div className="h-5 bg-gray-700/50 rounded-xl animate-pulse mb-3"></div>
-                      <div className="h-4 bg-gray-700/50 rounded-lg animate-pulse w-2/3 mb-4"></div>
+                    <div className="p-4 md:p-6">
+                      <div className="h-4 md:h-5 bg-gray-700/50 rounded-xl animate-pulse mb-2 md:mb-3"></div>
+                      <div className="h-3 md:h-4 bg-gray-700/50 rounded-lg animate-pulse w-2/3 mb-3 md:mb-4"></div>
                       <div className="h-3 bg-gray-700/50 rounded-lg animate-pulse w-1/3"></div>
                     </div>
                   </div>
@@ -345,7 +420,7 @@ export default function ProjectsPage() {
               </div>
             ) : filteredProjects.length > 0 ? (
               viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                   {filteredProjects.map((project) => (
                     <ProjectCard
                       key={project.id}
@@ -390,7 +465,7 @@ function ProjectCard({
   const [showMenu, setShowMenu] = useState(false)
 
   return (
-    <div className="group bg-white/5 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300">
+    <div className="group bg-white/5 backdrop-blur-sm rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300">
       <div className="aspect-video bg-gray-700 relative overflow-hidden">
         <Image
           src={
@@ -409,17 +484,17 @@ function ProjectCard({
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-        {/* Actions */}
-        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        {/* Actions - Mobile Always Visible */}
+        <div className="absolute top-3 md:top-4 right-3 md:right-4 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="w-10 h-10 bg-black/50 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-black/70 transition-colors border border-white/20">
-              <MoreVertical className="w-5 h-5 text-white" />
+              className="w-8 h-8 md:w-10 md:h-10 bg-black/50 backdrop-blur-sm rounded-lg md:rounded-xl flex items-center justify-center hover:bg-black/70 transition-colors border border-white/20">
+              <MoreVertical className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </button>
 
             {showMenu && (
-              <div className="absolute top-full right-0 mt-2 w-44 bg-gray-800/90 backdrop-blur-sm border border-gray-700 rounded-2xl shadow-xl z-10 overflow-hidden">
+              <div className="absolute top-full right-0 mt-2 w-40 md:w-44 bg-gray-800/90 backdrop-blur-sm border border-gray-700 rounded-xl md:rounded-2xl shadow-xl z-10 overflow-hidden">
                 <button
                   onClick={() => {
                     onDownload()
@@ -445,24 +520,26 @@ function ProjectCard({
 
         {/* Status Badge */}
         {project.is_public && (
-          <div className="absolute top-4 left-4 bg-emerald-500/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl text-xs font-medium border border-emerald-400/30">
+          <div className="absolute top-3 md:top-4 left-3 md:left-4 bg-emerald-500/90 backdrop-blur-sm text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl text-xs font-medium border border-emerald-400/30">
             Public
           </div>
         )}
       </div>
 
-      <div className="p-6">
-        <h3 className="font-bold text-white mb-2 text-xl truncate">
+      <div className="p-4 md:p-6">
+        <h3 className="font-bold text-white mb-1 md:mb-2 text-lg md:text-xl truncate">
           {project.title}
         </h3>
-        <p className="text-sm text-gray-400 mb-4 line-clamp-2">
+        <p className="text-sm text-gray-400 mb-3 md:mb-4 line-clamp-2">
           {project.description}
         </p>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 text-xs text-gray-500">
-            <Clock className="w-4 h-4" />
-            <span>{new Date(project.updated_at).toLocaleDateString()}</span>
+          <div className="flex items-center space-x-1 md:space-x-2 text-xs text-gray-500">
+            <Clock className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="text-xs">
+              {new Date(project.updated_at).toLocaleDateString()}
+            </span>
           </div>
           <div className="flex items-center space-x-1">
             <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>

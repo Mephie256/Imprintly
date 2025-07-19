@@ -1,5 +1,8 @@
 'use client'
 
+// Import all fonts like the fix folder does - CANVA COMPETITOR QUALITY
+import '@/app/fonts.css'
+
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { removeBackground } from '@imgly/background-removal'
 import {
@@ -32,11 +35,12 @@ import Dropzone from './ui/Dropzone'
 import StyleSelector from './ui/StyleSelector'
 import FontSelector from './ui/FontSelector'
 import TextControls from './ui/TextControls'
+import AdvancedTextControls from './ui/AdvancedTextControls'
+import TextEffects from './ui/TextEffects'
 import TextEditModal from './ui/TextEditModal'
 import DownloadModal from './ui/DownloadModal'
 import SaveSuccessAnimation from './ui/SaveSuccessAnimation'
 import UpgradeModal from './ui/UpgradeModal'
-import { fontLoader, ensureFontReady } from '@/utils/fontLoader'
 
 export default function TextBehindCreator() {
   const router = useRouter()
@@ -55,7 +59,6 @@ export default function TextBehindCreator() {
   useEffect(() => {
     initializeClientSecurity()
   }, [])
-
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -91,6 +94,15 @@ export default function TextBehindCreator() {
   const [fontWeight, setFontWeight] = useState('700')
   const [fontStyle, setFontStyle] = useState('normal')
   const [textDecoration, setTextDecoration] = useState('none')
+
+  // Advanced text effects (Pro features from fix folder)
+  const [letterSpacing, setLetterSpacing] = useState(0)
+  const [tiltX, setTiltX] = useState(0)
+  const [tiltY, setTiltY] = useState(0)
+  const [textEffect, setTextEffect] = useState<
+    'none' | 'shadow' | 'outline' | 'glow' | 'liquid-glass'
+  >('none')
+  const [glowColor, setGlowColor] = useState('#00ffff')
   const [saving, setSaving] = useState(false)
   const [projectTitle, setProjectTitle] = useState('Untitled Project')
   const [showSaveAnimation, setShowSaveAnimation] = useState(false)
@@ -106,40 +118,21 @@ export default function TextBehindCreator() {
   const [zoomLevel, setZoomLevel] = useState(1)
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false)
+
+  // Watermark logo image
+  const [logoImage, setLogoImage] = useState<HTMLImageElement | null>(null)
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Initialize professional font loading
   useEffect(() => {
-    console.log('🎨 TEXT BEHIND CREATOR: Initializing professional font loading...')
-    fontLoader.preloadPopularFonts().then(() => {
-      console.log('✅ TEXT BEHIND CREATOR: Popular fonts preloaded successfully')
-    }).catch((error) => {
-      console.warn('⚠️ TEXT BEHIND CREATOR: Font preloading failed:', error)
-    })
+    console.log(
+      '🎨 TEXT BEHIND CREATOR: Initialized with bulletproof font system!'
+    )
   }, [])
 
-  // Load font when font selection changes - PROPER CANVAS FONT LOADING
-  useEffect(() => {
-    if (font) {
-      console.log(`🎨 TEXT BEHIND CREATOR: Ensuring font ready for canvas: ${font}`)
-      ensureFontReady(font).then((success) => {
-        if (success) {
-          console.log(`✅ TEXT BEHIND CREATOR: Font ready for canvas: ${font}`)
-          // Small delay to ensure font is fully ready, then redraw
-          setTimeout(() => {
-            if (canvasReady) {
-              drawCompositeImage().catch(error => {
-                console.error('❌ Error redrawing canvas after font load:', error)
-              })
-            }
-          }, 100)
-        } else {
-          console.warn(`⚠️ TEXT BEHIND CREATOR: Font failed to load: ${font}`)
-        }
-      })
-    }
-  }, [font, canvasReady])
+  // Font loading is handled by FontSelector component
+  // Text effects are now included in drawCompositeImage dependencies for live updates
 
   // Zoom functions
   const handleZoomIn = () => {
@@ -336,6 +329,172 @@ export default function TextBehindCreator() {
     }
   }
 
+  // ADVANCED GLASS MORPHISM TEXT EFFECT - Based on your CSS example
+  const renderLiquidGlass = (
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    x: number,
+    y: number,
+    fontSize: number,
+    textOpacity: number,
+    letterSpacing: number
+  ) => {
+    ctx.save()
+
+    // LAYER 1: Glass Background - INCREASED OPACITY FOR VISIBILITY
+    const glassBase = ctx.createLinearGradient(0, y - fontSize, 0, y + fontSize)
+    glassBase.addColorStop(0, 'rgba(255, 255, 255, 0.6)')
+    glassBase.addColorStop(0.5, 'rgba(255, 255, 255, 0.4)')
+    glassBase.addColorStop(1, 'rgba(255, 255, 255, 0.6)')
+
+    ctx.fillStyle = glassBase
+    ctx.globalAlpha = textOpacity
+
+    // Glass shadow (box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2))
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.2)'
+    ctx.shadowBlur = 6
+    ctx.shadowOffsetX = 0
+    ctx.shadowOffsetY = 6
+
+    // Render base glass layer
+    renderTextLayer(ctx, text, x, y, letterSpacing)
+
+    // LAYER 2: Glass Specular Highlights - INCREASED VISIBILITY
+    ctx.shadowColor = 'transparent'
+    ctx.globalCompositeOperation = 'screen'
+
+    // Top highlight
+    const topHighlight = ctx.createLinearGradient(
+      0,
+      y - fontSize * 0.6,
+      0,
+      y - fontSize * 0.2
+    )
+    topHighlight.addColorStop(0, 'rgba(255, 255, 255, 0.9)')
+    topHighlight.addColorStop(0.5, 'rgba(255, 255, 255, 0.6)')
+    topHighlight.addColorStop(1, 'rgba(255, 255, 255, 0.0)')
+
+    ctx.fillStyle = topHighlight
+    ctx.globalAlpha = textOpacity * 0.8
+    renderTextLayer(ctx, text, x, y, letterSpacing)
+
+    // LAYER 3: Inner Glass Highlight - INCREASED VISIBILITY
+    ctx.globalCompositeOperation = 'overlay'
+    const innerHighlight = ctx.createLinearGradient(
+      0,
+      y - fontSize * 0.3,
+      0,
+      y + fontSize * 0.1
+    )
+    innerHighlight.addColorStop(0, 'rgba(255, 255, 255, 0.8)')
+    innerHighlight.addColorStop(1, 'rgba(255, 255, 255, 0.3)')
+
+    ctx.fillStyle = innerHighlight
+    ctx.globalAlpha = textOpacity * 0.7
+    renderTextLayer(ctx, text, x, y, letterSpacing)
+
+    // LAYER 4: Glass Edge Definition - INCREASED VISIBILITY
+    ctx.globalCompositeOperation = 'source-over'
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)'
+    ctx.lineWidth = 2
+    ctx.globalAlpha = textOpacity
+    ctx.shadowColor = 'transparent'
+
+    // Render glass edge
+    if (letterSpacing === 0) {
+      ctx.strokeText(text, x, y)
+    } else {
+      const chars = text.split('')
+      let currentX =
+        x -
+        (ctx.measureText(text).width + (chars.length - 1) * letterSpacing) / 2
+      chars.forEach((char) => {
+        const charWidth = ctx.measureText(char).width
+        ctx.strokeText(char, currentX + charWidth / 2, y)
+        currentX += charWidth + letterSpacing
+      })
+    }
+
+    // LAYER 5: Subtle Depth Shadow - INCREASED VISIBILITY
+    ctx.globalCompositeOperation = 'multiply'
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'
+    ctx.globalAlpha = textOpacity * 0.5
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.1)'
+    ctx.shadowBlur = 20
+    ctx.shadowOffsetY = 4
+
+    renderTextLayer(ctx, text, x, y, letterSpacing)
+
+    ctx.restore()
+  }
+
+  // Helper function to render text with letter spacing
+  const renderTextLayer = (
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    x: number,
+    y: number,
+    letterSpacing: number
+  ) => {
+    if (letterSpacing === 0) {
+      ctx.fillText(text, x, y)
+    } else {
+      const chars = text.split('')
+      let currentX =
+        x -
+        (ctx.measureText(text).width + (chars.length - 1) * letterSpacing) / 2
+      chars.forEach((char) => {
+        const charWidth = ctx.measureText(char).width
+        ctx.fillText(char, currentX + charWidth / 2, y)
+        currentX += charWidth + letterSpacing
+      })
+    }
+  }
+
+  // Apply text effects to canvas context
+  const applyTextEffect = (
+    ctx: CanvasRenderingContext2D,
+    effect: 'none' | 'shadow' | 'outline' | 'glow' | 'liquid-glass',
+    textColor: string,
+    textOpacity: number,
+    textY?: number,
+    fontSize?: number,
+    customGlowColor?: string
+  ) => {
+    ctx.globalAlpha = textOpacity
+
+    switch (effect) {
+      case 'none':
+        ctx.fillStyle = textColor
+        break
+
+      case 'shadow':
+        ctx.fillStyle = textColor
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
+        ctx.shadowBlur = 4
+        ctx.shadowOffsetX = 2
+        ctx.shadowOffsetY = 2
+        break
+
+      case 'outline':
+        ctx.strokeStyle = textColor
+        ctx.lineWidth = 3
+        ctx.fillStyle = 'transparent'
+        break
+
+      case 'glow':
+        ctx.fillStyle = textColor
+        ctx.shadowColor = customGlowColor || '#00ffff'
+        ctx.shadowBlur = 20
+        break
+
+      case 'liquid-glass':
+        // This will be handled by renderLiquidGlass function
+        ctx.fillStyle = 'transparent'
+        break
+    }
+  }
+
   const drawCompositeImage = useCallback(async () => {
     if (!canvasRef.current || !canvasReady || !imageSrc || !processedImageSrc)
       return
@@ -351,12 +510,18 @@ export default function TextBehindCreator() {
       const bgImg = new Image()
       bgImg.onload = async () => {
         // Calculate optimal canvas size based on viewport and container
-        const containerWidth = window.innerWidth * 0.6 // Assuming canvas takes ~60% of viewport width
-        const containerHeight = window.innerHeight * 0.7 // Assuming canvas takes ~70% of viewport height
+        const containerWidth =
+          window.innerWidth < 1024
+            ? window.innerWidth * 0.9
+            : window.innerWidth * 0.6 // Mobile: 90%, Desktop: 60%
+        const containerHeight =
+          window.innerWidth < 1024
+            ? window.innerHeight * 0.5
+            : window.innerHeight * 0.65 // Mobile: 50%, Desktop: 65%
 
         // Set reasonable maximum dimensions for performance
-        const maxDisplayWidth = Math.min(containerWidth, 1000)
-        const maxDisplayHeight = Math.min(containerHeight, 700)
+        const maxDisplayWidth = Math.min(containerWidth, 800)
+        const maxDisplayHeight = Math.min(containerHeight, 600)
 
         const aspectRatio = bgImg.width / bgImg.height
         let displayWidth = bgImg.width
@@ -413,6 +578,31 @@ export default function TextBehindCreator() {
         ctx.save()
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
+
+        // Apply 3D tilt effects (Pro feature from fix folder)
+        if (hasPremiumAccess && (tiltX !== 0 || tiltY !== 0)) {
+          const centerX = canvas.width / 2
+          const centerY = canvas.height / 2
+
+          // Move to center for transformation
+          ctx.translate(centerX, centerY)
+
+          // Apply 3D perspective transformation
+          const tiltXRad = (tiltX * Math.PI) / 180
+          const tiltYRad = (tiltY * Math.PI) / 180
+
+          // Create 3D transformation matrix
+          const cosX = Math.cos(tiltXRad)
+          const sinX = Math.sin(tiltXRad)
+          const cosY = Math.cos(tiltYRad)
+          const sinY = Math.sin(tiltYRad)
+
+          // Apply perspective transformation
+          ctx.transform(cosY, sinX * sinY, -sinY, cosX * cosY, 0, 0)
+
+          // Move back from center
+          ctx.translate(-centerX, -centerY)
+        }
 
         // Enhanced font mapping with fallbacks and better support
         const fontMap: Record<string, string> = {
@@ -545,17 +735,26 @@ export default function TextBehindCreator() {
 
             // Check if font is now available
             if (document.fonts && document.fonts.check(`16px "${font}"`)) {
-              console.log(`✅ CANVAS FONT DEBUG: Font verified available: ${font}`)
+              console.log(
+                `✅ CANVAS FONT DEBUG: Font verified available: ${font}`
+              )
               fontReady = true
             } else {
-              console.log(`⚠️ CANVAS FONT DEBUG: Font still not available: ${font}`)
+              console.log(
+                `⚠️ CANVAS FONT DEBUG: Font still not available: ${font}`
+              )
               fontReady = false
             }
           } catch (error) {
-            console.warn(`⚠️ CANVAS FONT DEBUG: Font load failed: ${font}`, error)
+            console.warn(
+              `⚠️ CANVAS FONT DEBUG: Font load failed: ${font}`,
+              error
+            )
             fontReady = false
           }
         }
+
+        // Font will be loaded by FontSelector - just use it directly
 
         // Try to set font with error handling and detailed debugging
         const fontString = `${fontStyleString}${fontWeight} ${fontSize}px ${fontFamily}`
@@ -612,11 +811,19 @@ export default function TextBehindCreator() {
           ctx.font = `${fontStyleString}${fontWeight} ${fontSize}px ${fontFamily}`
         }
 
-        ctx.fillStyle = textColor
-        ctx.globalAlpha = textOpacity
-
         const x = (canvas.width * textPosition.x) / 100
         const y = (canvas.height * textPosition.y) / 100
+
+        // Apply text effects
+        applyTextEffect(
+          ctx,
+          textEffect,
+          textColor,
+          textOpacity,
+          y,
+          fontSize,
+          glowColor
+        )
 
         const textMetrics = ctx.measureText(text)
         const boundsWidth = textMetrics.width
@@ -629,14 +836,89 @@ export default function TextBehindCreator() {
           height: boundsHeight,
         })
 
-        if (textRotation !== 0) {
-          ctx.translate(x, y)
-          ctx.rotate((textRotation * Math.PI) / 180)
-          ctx.fillText(text, 0, 0)
-          ctx.rotate((-textRotation * Math.PI) / 180)
-          ctx.translate(-x, -y)
+        // Enhanced text rendering with letter spacing support (Pro feature from fix folder)
+        const renderTextWithLetterSpacing = (
+          ctx: CanvasRenderingContext2D,
+          text: string,
+          x: number,
+          y: number,
+          letterSpacing: number
+        ) => {
+          if (letterSpacing === 0 || !hasPremiumAccess) {
+            // Standard rendering for free users or when letter spacing is 0
+            if (textEffect === 'outline') {
+              ctx.strokeText(text, x, y)
+            } else {
+              ctx.fillText(text, x, y)
+            }
+            return
+          }
+
+          // Pro feature: Render with letter spacing (exact implementation from fix folder)
+          const chars = text.split('')
+          let currentX = 0
+
+          // Calculate total width to center properly
+          const totalWidth = chars.reduce((width, char, i) => {
+            const charWidth = ctx.measureText(char).width
+            return (
+              width + charWidth + (i < chars.length - 1 ? letterSpacing : 0)
+            )
+          }, 0)
+
+          // Start position (centered)
+          currentX = x - totalWidth / 2
+
+          // Draw each character with spacing
+          chars.forEach((char) => {
+            const charWidth = ctx.measureText(char).width
+            if (textEffect === 'outline') {
+              ctx.strokeText(char, currentX + charWidth / 2, y)
+            } else {
+              ctx.fillText(char, currentX + charWidth / 2, y)
+            }
+            currentX += charWidth + letterSpacing
+          })
+        }
+
+        if (textEffect === 'liquid-glass') {
+          // Use special liquid glass rendering
+          if (textRotation !== 0) {
+            ctx.translate(x, y)
+            ctx.rotate((textRotation * Math.PI) / 180)
+            renderLiquidGlass(
+              ctx,
+              text,
+              0,
+              0,
+              fontSize,
+              textOpacity,
+              letterSpacing
+            )
+            ctx.rotate((-textRotation * Math.PI) / 180)
+            ctx.translate(-x, -y)
+          } else {
+            renderLiquidGlass(
+              ctx,
+              text,
+              x,
+              y,
+              fontSize,
+              textOpacity,
+              letterSpacing
+            )
+          }
         } else {
-          ctx.fillText(text, x, y)
+          // Use normal text rendering
+          if (textRotation !== 0) {
+            ctx.translate(x, y)
+            ctx.rotate((textRotation * Math.PI) / 180)
+            renderTextWithLetterSpacing(ctx, text, 0, 0, letterSpacing)
+            ctx.rotate((-textRotation * Math.PI) / 180)
+            ctx.translate(-x, -y)
+          } else {
+            renderTextWithLetterSpacing(ctx, text, x, y, letterSpacing)
+          }
         }
 
         ctx.restore()
@@ -645,6 +927,9 @@ export default function TextBehindCreator() {
         fgImg.onload = () => {
           try {
             ctx.drawImage(fgImg, 0, 0, canvas.width, canvas.height)
+
+            // Add watermark for free users in preview
+            addWatermark(ctx, canvas)
           } catch (error) {
             console.error('❌ Error drawing foreground image:', error)
           }
@@ -676,12 +961,19 @@ export default function TextBehindCreator() {
     fontWeight,
     fontStyle,
     textDecoration,
+    letterSpacing,
+    tiltX,
+    tiltY,
+    textEffect,
+    glowColor,
+    logoImage,
+    hasPremiumAccess,
   ])
 
   // Draw composite image on canvas
   useEffect(() => {
     if (canvasReady) {
-      drawCompositeImage().catch(error => {
+      drawCompositeImage().catch((error) => {
         console.error('❌ Error in drawCompositeImage:', error)
       })
     }
@@ -781,6 +1073,9 @@ export default function TextBehindCreator() {
           fontWeight,
           fontStyle,
           textDecoration,
+          letterSpacing,
+          tiltX,
+          tiltY,
         },
         tags: ['auto-saved', 'text-behind-effect', 'download'],
         is_public: false,
@@ -841,6 +1136,129 @@ export default function TextBehindCreator() {
     return null
   }
 
+  // Load logo image on component mount
+  useEffect(() => {
+    const img = new Image()
+    img.onload = () => {
+      setLogoImage(img)
+    }
+    img.onerror = () => {
+      console.warn('Failed to load logo image for watermark')
+    }
+    img.src = '/ionc.png'
+  }, [])
+
+  // Add watermark for free users - NO BACKGROUND, REAL LOGO (ionc.png), BEAUTIFUL FONTS
+  const addWatermark = (
+    ctx: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement
+  ) => {
+    // Only add watermark for free users
+    if (hasPremiumAccess) return
+
+    ctx.save()
+
+    // Watermark positioning - bottom right corner
+    const baseSize = Math.min(canvas.width, canvas.height) * 0.08 // 8% of smallest dimension
+    const logoSize = baseSize
+    const padding = baseSize * 0.3
+    const x = canvas.width - logoSize - padding
+    const y = canvas.height - logoSize - padding
+
+    // REAL IMPRINTLY LOGO - Use preloaded ionc.png
+    const logoX = x
+    const logoY = y
+
+    // Beautiful text with mixed fonts - RENDER TEXT FIRST
+    const textStartX = logoX + logoSize + padding * 0.8
+    const textCenterY = logoY + logoSize / 2
+
+    // "Created with" in elegant script font
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
+    ctx.font = `italic ${
+      baseSize * 0.35
+    }px "Dancing Script", "Brush Script MT", cursive`
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'middle'
+
+    // Add subtle text shadow for readability
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
+    ctx.shadowBlur = baseSize * 0.1
+    ctx.shadowOffsetX = 1
+    ctx.shadowOffsetY = 1
+
+    ctx.fillText('Created with', textStartX, textCenterY - baseSize * 0.25)
+
+    // "Imprintly" in bold modern font with emerald color
+    ctx.fillStyle = '#10b981' // emerald-500
+    ctx.font = `bold ${baseSize * 0.5}px "Inter", "Helvetica Neue", sans-serif`
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'
+    ctx.shadowBlur = baseSize * 0.08
+    ctx.shadowOffsetX = 1
+    ctx.shadowOffsetY = 1
+
+    ctx.fillText('Imprintly', textStartX, textCenterY + baseSize * 0.15)
+
+    // Add subtle decorative element
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.6)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.moveTo(textStartX, textCenterY - baseSize * 0.05)
+    ctx.lineTo(
+      textStartX + ctx.measureText('Imprintly').width,
+      textCenterY - baseSize * 0.05
+    )
+    ctx.stroke()
+
+    // Reset shadow and styles for logo
+    ctx.shadowColor = 'transparent'
+    ctx.shadowBlur = 0
+    ctx.shadowOffsetX = 0
+    ctx.shadowOffsetY = 0
+
+    // NOW RENDER THE LOGO
+    if (logoImage) {
+      // Add glow effect around the logo
+      ctx.shadowColor = 'rgba(16, 185, 129, 0.6)'
+      ctx.shadowBlur = logoSize * 0.2
+      ctx.shadowOffsetX = 0
+      ctx.shadowOffsetY = 0
+
+      // Draw the actual logo image
+      ctx.drawImage(logoImage, logoX, logoY, logoSize, logoSize)
+    } else {
+      // Fallback: Simple gradient circle if logo hasn't loaded
+      const logoGradient = ctx.createLinearGradient(
+        logoX,
+        logoY,
+        logoX + logoSize,
+        logoY + logoSize
+      )
+      logoGradient.addColorStop(0, '#10b981')
+      logoGradient.addColorStop(1, '#059669')
+
+      ctx.fillStyle = logoGradient
+      ctx.beginPath()
+      ctx.arc(
+        logoX + logoSize / 2,
+        logoY + logoSize / 2,
+        logoSize / 2,
+        0,
+        Math.PI * 2
+      )
+      ctx.fill()
+
+      // Add "I" letter as fallback
+      ctx.fillStyle = 'white'
+      ctx.font = `bold ${logoSize * 0.6}px "Inter", sans-serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('I', logoX + logoSize / 2, logoY + logoSize / 2)
+    }
+
+    ctx.restore()
+  }
+
   // Handle download with compression
   const handleDownload = async (
     format: 'png' | 'jpeg' = 'jpeg',
@@ -869,7 +1287,7 @@ export default function TextBehindCreator() {
       setDownloadProgress(20)
 
       const bgImg = new Image()
-      bgImg.onload = () => {
+      bgImg.onload = async () => {
         // Progress: 40% - Background loaded, calculating dimensions
         setDownloadProgress(40)
 
@@ -878,15 +1296,15 @@ export default function TextBehindCreator() {
         let outputWidth = Math.min(bgImg.width, maxWidth)
         let outputHeight = outputWidth / aspectRatio
 
-      // If height is still too large, scale down based on height
-      const maxHeight = 1080
-      if (outputHeight > maxHeight) {
-        outputHeight = maxHeight
-        outputWidth = outputHeight * aspectRatio
-      }
+        // If height is still too large, scale down based on height
+        const maxHeight = 1080
+        if (outputHeight > maxHeight) {
+          outputHeight = maxHeight
+          outputWidth = outputHeight * aspectRatio
+        }
 
-      outputCanvas.width = outputWidth
-      outputCanvas.height = outputHeight
+        outputCanvas.width = outputWidth
+        outputCanvas.height = outputHeight
 
         // Progress: 50% - Drawing background
         setDownloadProgress(50)
@@ -899,150 +1317,272 @@ export default function TextBehindCreator() {
 
         // Redraw text with proper scaling for high-quality output
         outputCtx.save()
-      outputCtx.textAlign = 'center'
-      outputCtx.textBaseline = 'middle'
+        outputCtx.textAlign = 'center'
+        outputCtx.textBaseline = 'middle'
 
-      // Use the same enhanced font mapping for consistent rendering
-      const fontMap: Record<string, string> = {
-        // Core fonts (pre-loaded via Next.js)
-        Inter: 'var(--font-inter), Inter, system-ui, sans-serif',
-        Roboto: 'var(--font-roboto), Roboto, sans-serif',
-        'Open Sans': 'var(--font-open-sans), "Open Sans", sans-serif',
-        Montserrat: 'var(--font-montserrat), Montserrat, sans-serif',
-        Poppins: 'var(--font-poppins), Poppins, sans-serif',
-        Lato: 'var(--font-lato), Lato, sans-serif',
-        'Playfair Display':
-          'var(--font-playfair-display), "Playfair Display", serif',
-        Merriweather: 'var(--font-merriweather), Merriweather, serif',
-        Oswald: 'var(--font-oswald), Oswald, sans-serif',
-        'Bebas Neue': 'var(--font-bebas-neue), "Bebas Neue", sans-serif',
-        'Dancing Script':
-          'var(--font-dancing-script), "Dancing Script", cursive',
-        Pacifico: 'var(--font-pacifico), Pacifico, cursive',
-        'Fira Code': 'var(--font-fira-code), "Fira Code", monospace',
+        // Apply 3D tilt effects for download (Pro feature from fix folder)
+        if (hasPremiumAccess && (tiltX !== 0 || tiltY !== 0)) {
+          const centerX = outputWidth / 2
+          const centerY = outputHeight / 2
 
-        // Google Fonts (dynamically loaded)
-        'Source Sans 3': '"Source Sans 3", sans-serif',
-        Nunito: 'Nunito, sans-serif',
-        Raleway: 'Raleway, sans-serif',
-        'Work Sans': '"Work Sans", sans-serif',
-        Rubik: 'Rubik, sans-serif',
-        'Fira Sans': '"Fira Sans", sans-serif',
-        'PT Sans': '"PT Sans", sans-serif',
-        Ubuntu: 'Ubuntu, sans-serif',
-        'Noto Sans': '"Noto Sans", sans-serif',
-        Barlow: 'Barlow, sans-serif',
-        'DM Sans': '"DM Sans", sans-serif',
-        Manrope: 'Manrope, sans-serif',
-        Quicksand: 'Quicksand, sans-serif',
-        Karla: 'Karla, sans-serif',
-        Oxygen: 'Oxygen, sans-serif',
-        Hind: 'Hind, sans-serif',
+          // Move to center for transformation
+          outputCtx.translate(centerX, centerY)
 
-        // Serif fonts
-        Georgia: 'Georgia, serif',
-        'Times New Roman': '"Times New Roman", serif',
-        'Crimson Text': '"Crimson Text", serif',
-        'Libre Baskerville': '"Libre Baskerville", serif',
-        'Cormorant Garamond': '"Cormorant Garamond", serif',
-        'EB Garamond': '"EB Garamond", serif',
-        Lora: 'Lora, serif',
-        'PT Serif': '"PT Serif", serif',
-        Bitter: 'Bitter, serif',
-        Domine: 'Domine, serif',
+          // Apply 3D perspective transformation
+          const tiltXRad = (tiltX * Math.PI) / 180
+          const tiltYRad = (tiltY * Math.PI) / 180
 
-        // Display fonts
-        Anton: 'Anton, sans-serif',
-        'Fjalla One': '"Fjalla One", sans-serif',
-        'Russo One': '"Russo One", sans-serif',
-        Bangers: 'Bangers, cursive',
-        Fredoka: '"Fredoka", sans-serif',
-        Righteous: 'Righteous, cursive',
-        Bungee: 'Bungee, cursive',
-        'Alfa Slab One': '"Alfa Slab One", cursive',
-        'Archivo Black': '"Archivo Black", sans-serif',
-        'Black Ops One': '"Black Ops One", cursive',
-        Orbitron: 'Orbitron, sans-serif',
-        'Exo 2': '"Exo 2", sans-serif',
+          // Create 3D transformation matrix
+          const cosX = Math.cos(tiltXRad)
+          const sinX = Math.sin(tiltXRad)
+          const cosY = Math.cos(tiltYRad)
+          const sinY = Math.sin(tiltYRad)
 
-        // Script fonts
-        'Great Vibes': '"Great Vibes", cursive',
-        Satisfy: 'Satisfy, cursive',
-        'Kaushan Script': '"Kaushan Script", cursive',
-        Lobster: 'Lobster, cursive',
-        Caveat: 'Caveat, cursive',
-        'Amatic SC': '"Amatic SC", cursive',
-        'Indie Flower': '"Indie Flower", cursive',
-        'Shadows Into Light': '"Shadows Into Light", cursive',
-        Courgette: 'Courgette, cursive',
-        Allura: 'Allura, cursive',
+          // Apply perspective transformation
+          outputCtx.transform(cosY, sinX * sinY, -sinY, cosX * cosY, 0, 0)
 
-        // Monospace fonts
-        'JetBrains Mono': '"JetBrains Mono", monospace',
-        'Source Code Pro': '"Source Code Pro", monospace',
-        'Courier New': '"Courier New", monospace',
-        'Space Mono': '"Space Mono", monospace',
-        'Roboto Mono': '"Roboto Mono", monospace',
-      }
+          // Move back from center
+          outputCtx.translate(-centerX, -centerY)
+        }
 
-      // Enhanced font handling with fallbacks for download
-      const fontFamily =
-        fontMap[font] || 'var(--font-inter), Inter, system-ui, sans-serif'
-      let baseFontSize = customFontSize
+        // Use the same enhanced font mapping for consistent rendering
+        const fontMap: Record<string, string> = {
+          // Core fonts (pre-loaded via Next.js)
+          Inter: 'var(--font-inter), Inter, system-ui, sans-serif',
+          Roboto: 'var(--font-roboto), Roboto, sans-serif',
+          'Open Sans': 'var(--font-open-sans), "Open Sans", sans-serif',
+          Montserrat: 'var(--font-montserrat), Montserrat, sans-serif',
+          Poppins: 'var(--font-poppins), Poppins, sans-serif',
+          Lato: 'var(--font-lato), Lato, sans-serif',
+          'Playfair Display':
+            'var(--font-playfair-display), "Playfair Display", serif',
+          Merriweather: 'var(--font-merriweather), Merriweather, serif',
+          Oswald: 'var(--font-oswald), Oswald, sans-serif',
+          'Bebas Neue': 'var(--font-bebas-neue), "Bebas Neue", sans-serif',
+          'Dancing Script':
+            'var(--font-dancing-script), "Dancing Script", cursive',
+          Pacifico: 'var(--font-pacifico), Pacifico, cursive',
+          'Fira Code': 'var(--font-fira-code), "Fira Code", monospace',
 
-      // Scale font size for output resolution
-      const maxDimension = Math.max(outputWidth, outputHeight)
-      const scaleFactor = maxDimension / 1000
-      let fontSize = baseFontSize * Math.max(scaleFactor, 0.3)
+          // Google Fonts (dynamically loaded)
+          'Source Sans 3': '"Source Sans 3", sans-serif',
+          Nunito: 'Nunito, sans-serif',
+          Raleway: 'Raleway, sans-serif',
+          'Work Sans': '"Work Sans", sans-serif',
+          Rubik: 'Rubik, sans-serif',
+          'Fira Sans': '"Fira Sans", sans-serif',
+          'PT Sans': '"PT Sans", sans-serif',
+          Ubuntu: 'Ubuntu, sans-serif',
+          'Noto Sans': '"Noto Sans", sans-serif',
+          Barlow: 'Barlow, sans-serif',
+          'DM Sans': '"DM Sans", sans-serif',
+          Manrope: 'Manrope, sans-serif',
+          Quicksand: 'Quicksand, sans-serif',
+          Karla: 'Karla, sans-serif',
+          Oxygen: 'Oxygen, sans-serif',
+          Hind: 'Hind, sans-serif',
 
-      const fontStyleString = fontStyle === 'italic' ? 'italic ' : ''
+          // Serif fonts
+          Georgia: 'Georgia, serif',
+          'Times New Roman': '"Times New Roman", serif',
+          'Crimson Text': '"Crimson Text", serif',
+          'Libre Baskerville': '"Libre Baskerville", serif',
+          'Cormorant Garamond': '"Cormorant Garamond", serif',
+          'EB Garamond': '"EB Garamond", serif',
+          Lora: 'Lora, serif',
+          'PT Serif': '"PT Serif", serif',
+          Bitter: 'Bitter, serif',
+          Domine: 'Domine, serif',
 
-      // Try to set font with error handling for download
-      try {
-        outputCtx.font = `${fontStyleString}${fontWeight} ${fontSize}px ${fontFamily}`
+          // Display fonts
+          Anton: 'Anton, sans-serif',
+          'Fjalla One': '"Fjalla One", sans-serif',
+          'Russo One': '"Russo One", sans-serif',
+          Bangers: 'Bangers, cursive',
+          Fredoka: '"Fredoka", sans-serif',
+          Righteous: 'Righteous, cursive',
+          Bungee: 'Bungee, cursive',
+          'Alfa Slab One': '"Alfa Slab One", cursive',
+          'Archivo Black': '"Archivo Black", sans-serif',
+          'Black Ops One': '"Black Ops One", cursive',
+          Orbitron: 'Orbitron, sans-serif',
+          'Exo 2': '"Exo 2", sans-serif',
 
-        // Verify font was applied correctly
-        const appliedFont = outputCtx.font
-        if (
-          !appliedFont.includes(fontWeight) &&
-          !appliedFont.includes(fontSize.toString())
-        ) {
-          console.warn(
-            `⚠️ Download font may not have applied correctly: ${font}`
-          )
-          // Fallback to a safe font
+          // Script fonts
+          'Great Vibes': '"Great Vibes", cursive',
+          Satisfy: 'Satisfy, cursive',
+          'Kaushan Script': '"Kaushan Script", cursive',
+          Lobster: 'Lobster, cursive',
+          Caveat: 'Caveat, cursive',
+          'Amatic SC': '"Amatic SC", cursive',
+          'Indie Flower': '"Indie Flower", cursive',
+          'Shadows Into Light': '"Shadows Into Light", cursive',
+          Courgette: 'Courgette, cursive',
+          Allura: 'Allura, cursive',
+
+          // Monospace fonts
+          'JetBrains Mono': '"JetBrains Mono", monospace',
+          'Source Code Pro': '"Source Code Pro", monospace',
+          'Courier New': '"Courier New", monospace',
+          'Space Mono': '"Space Mono", monospace',
+          'Roboto Mono': '"Roboto Mono", monospace',
+        }
+
+        // Enhanced font handling with fallbacks for download
+        const fontFamily =
+          fontMap[font] || 'var(--font-inter), Inter, system-ui, sans-serif'
+        let baseFontSize = customFontSize
+
+        // Scale font size for output resolution
+        const maxDimension = Math.max(outputWidth, outputHeight)
+        const scaleFactor = maxDimension / 1000
+        let fontSize = baseFontSize * Math.max(scaleFactor, 0.3)
+
+        const fontStyleString = fontStyle === 'italic' ? 'italic ' : ''
+
+        // Font will be loaded by FontSelector - just use it directly for download
+
+        // Try to set font with error handling for download
+        try {
+          outputCtx.font = `${fontStyleString}${fontWeight} ${fontSize}px ${fontFamily}`
+
+          // Verify font was applied correctly
+          const appliedFont = outputCtx.font
+          if (
+            !appliedFont.includes(fontWeight) &&
+            !appliedFont.includes(fontSize.toString())
+          ) {
+            console.warn(
+              `⚠️ Download font may not have applied correctly: ${font}`
+            )
+            // Fallback to a safe font
+            outputCtx.font = `${fontStyleString}${fontWeight} ${fontSize}px Inter, system-ui, sans-serif`
+          }
+        } catch (error) {
+          console.error(`❌ Error setting download font ${font}:`, error)
+          // Use safe fallback
           outputCtx.font = `${fontStyleString}${fontWeight} ${fontSize}px Inter, system-ui, sans-serif`
         }
-      } catch (error) {
-        console.error(`❌ Error setting download font ${font}:`, error)
-        // Use safe fallback
-        outputCtx.font = `${fontStyleString}${fontWeight} ${fontSize}px Inter, system-ui, sans-serif`
-      }
 
-      const measuredWidth = outputCtx.measureText(text).width
-      const targetWidth = outputWidth * 0.9
-      if (measuredWidth > targetWidth) {
-        fontSize *= targetWidth / measuredWidth
-        outputCtx.font = `${fontStyleString}${fontWeight} ${fontSize}px ${fontFamily}`
-      }
+        const measuredWidth = outputCtx.measureText(text).width
+        const targetWidth = outputWidth * 0.9
+        if (measuredWidth > targetWidth) {
+          fontSize *= targetWidth / measuredWidth
+          outputCtx.font = `${fontStyleString}${fontWeight} ${fontSize}px ${fontFamily}`
+        }
 
-      outputCtx.fillStyle = textColor
-      outputCtx.globalAlpha = textOpacity
+        const x = (outputWidth * textPosition.x) / 100
+        const y = (outputHeight * textPosition.y) / 100
 
-      const x = (outputWidth * textPosition.x) / 100
-      const y = (outputHeight * textPosition.y) / 100
+        // Apply text effects for download
+        applyTextEffect(
+          outputCtx,
+          textEffect,
+          textColor,
+          textOpacity,
+          y,
+          fontSize,
+          glowColor
+        )
 
-      if (textRotation !== 0) {
-        outputCtx.translate(x, y)
-        outputCtx.rotate((textRotation * Math.PI) / 180)
-        outputCtx.fillText(text, 0, 0)
-        outputCtx.rotate((-textRotation * Math.PI) / 180)
-        outputCtx.translate(-x, -y)
-      } else {
-        outputCtx.fillText(text, x, y)
-      }
+        // Enhanced download text rendering with letter spacing support (Pro feature from fix folder)
+        const renderDownloadTextWithLetterSpacing = (
+          ctx: CanvasRenderingContext2D,
+          text: string,
+          x: number,
+          y: number,
+          letterSpacing: number
+        ) => {
+          if (letterSpacing === 0 || !hasPremiumAccess) {
+            // Standard rendering for free users or when letter spacing is 0
+            if (textEffect === 'outline') {
+              ctx.strokeText(text, x, y)
+            } else {
+              ctx.fillText(text, x, y)
+            }
+            return
+          }
 
-      outputCtx.restore()
+          // Pro feature: Render with letter spacing (exact implementation from fix folder)
+          const chars = text.split('')
+          let currentX = 0
+
+          // Calculate total width to center properly
+          const totalWidth = chars.reduce((width, char, i) => {
+            const charWidth = ctx.measureText(char).width
+            return (
+              width + charWidth + (i < chars.length - 1 ? letterSpacing : 0)
+            )
+          }, 0)
+
+          // Start position (centered)
+          currentX = x - totalWidth / 2
+
+          // Draw each character with spacing
+          chars.forEach((char) => {
+            const charWidth = ctx.measureText(char).width
+            if (textEffect === 'outline') {
+              ctx.strokeText(char, currentX + charWidth / 2, y)
+            } else {
+              ctx.fillText(char, currentX + charWidth / 2, y)
+            }
+            currentX += charWidth + letterSpacing
+          })
+        }
+
+        if (textEffect === 'liquid-glass') {
+          // Use special liquid glass rendering for download
+          if (textRotation !== 0) {
+            outputCtx.translate(x, y)
+            outputCtx.rotate((textRotation * Math.PI) / 180)
+            renderLiquidGlass(
+              outputCtx,
+              text,
+              0,
+              0,
+              fontSize,
+              textOpacity,
+              letterSpacing
+            )
+            outputCtx.rotate((-textRotation * Math.PI) / 180)
+            outputCtx.translate(-x, -y)
+          } else {
+            renderLiquidGlass(
+              outputCtx,
+              text,
+              x,
+              y,
+              fontSize,
+              textOpacity,
+              letterSpacing
+            )
+          }
+        } else {
+          // Use normal text rendering for download
+          if (textRotation !== 0) {
+            outputCtx.translate(x, y)
+            outputCtx.rotate((textRotation * Math.PI) / 180)
+            renderDownloadTextWithLetterSpacing(
+              outputCtx,
+              text,
+              0,
+              0,
+              letterSpacing
+            )
+            outputCtx.rotate((-textRotation * Math.PI) / 180)
+            outputCtx.translate(-x, -y)
+          } else {
+            renderDownloadTextWithLetterSpacing(
+              outputCtx,
+              text,
+              x,
+              y,
+              letterSpacing
+            )
+          }
+        }
+
+        outputCtx.restore()
 
         // Progress: 70% - Loading foreground image
         setDownloadProgress(70)
@@ -1055,6 +1595,12 @@ export default function TextBehindCreator() {
 
           outputCtx.drawImage(fgImg, 0, 0, outputWidth, outputHeight)
 
+          // Progress: 82% - Adding watermark for free users
+          setDownloadProgress(82)
+
+          // Add watermark for free users only
+          addWatermark(outputCtx, outputCanvas)
+
           // Progress: 85% - Converting to image format
           setDownloadProgress(85)
 
@@ -1062,13 +1608,13 @@ export default function TextBehindCreator() {
           const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png'
           const dataURL = outputCanvas.toDataURL(mimeType, quality)
 
-        // Calculate approximate file size
-        const base64Length = dataURL.split(',')[1].length
-        const fileSizeKB = Math.round((base64Length * 0.75) / 1024)
+          // Calculate approximate file size
+          const base64Length = dataURL.split(',')[1].length
+          const fileSizeKB = Math.round((base64Length * 0.75) / 1024)
 
-        console.log(
-          `Download: ${outputWidth}x${outputHeight}, ${format.toUpperCase()}, ~${fileSizeKB}KB`
-        )
+          console.log(
+            `Download: ${outputWidth}x${outputHeight}, ${format.toUpperCase()}, ~${fileSizeKB}KB`
+          )
 
           // Progress: 90% - Auto-saving project
           setDownloadProgress(90)
@@ -1323,6 +1869,8 @@ export default function TextBehindCreator() {
     setFontWeight('700')
     setFontStyle('normal')
     setTextDecoration('none')
+    setTextEffect('none')
+    setGlowColor('#00ffff')
   }
 
   const handleSaveProject = async () => {
@@ -1360,6 +1908,9 @@ export default function TextBehindCreator() {
           fontWeight,
           fontStyle,
           textDecoration,
+          letterSpacing,
+          tiltX,
+          tiltY,
         },
         tags: ['text-behind', 'ai-generated'],
         is_public: false,
@@ -1429,115 +1980,120 @@ export default function TextBehindCreator() {
   }
 
   return (
-    <div className="relative z-10 min-h-screen">
-      {/* Enhanced Header - Mobile Responsive */}
-      <div className="bg-white/5 backdrop-blur-sm border-b border-white/10 shadow-lg">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between p-4 lg:p-6 gap-4">
-          <div className="flex items-center gap-2 lg:gap-4">
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="group flex items-center gap-2 lg:gap-3 text-gray-300 hover:text-emerald-400 transition-all duration-200 bg-white/5 hover:bg-white/10 px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl border border-white/10 hover:border-emerald-500/30">
-              <ArrowLeft className="w-4 lg:w-5 h-4 lg:h-5 group-hover:-translate-x-1 transition-transform duration-200" />
-              <span className="font-medium text-sm lg:text-base">Back</span>
-            </button>
-
-            {/* Upgrade to Pro Button - Only show for free users - Mobile Responsive */}
-            {!hasPremiumAccess && (
+    <div className="relative z-10 min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+      {/* Premium Header - Mobile First */}
+      <div className="bg-gray-950/90 backdrop-blur-xl border-b border-gray-800/50 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 sm:py-6 gap-4">
+            {/* Left Section - Navigation & Status */}
+            <div className="flex items-center gap-3 sm:gap-4">
               <button
-                onClick={() => setShowUpgradeModal(true)}
-                className="group flex items-center gap-1 lg:gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl border border-emerald-500/30">
-                <Crown className="w-3 lg:w-4 h-3 lg:h-4 group-hover:scale-110 transition-transform duration-200" />
-                <span className="font-medium text-sm lg:text-base">Pro</span>
+                onClick={() => router.push('/dashboard')}
+                className="group flex items-center gap-2 text-gray-300 hover:text-white transition-all duration-300 bg-gray-800/50 hover:bg-gray-700/50 px-3 sm:px-4 py-2.5 rounded-2xl border border-gray-700/50 hover:border-gray-600/50 hover:shadow-lg hover:scale-[1.02]">
+                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+                <span className="font-semibold text-sm sm:text-base">Back</span>
               </button>
-            )}
 
-            {/* Pro Status Badge - Show for premium users - Mobile Responsive */}
-            {hasPremiumAccess && (
-              <div className="group flex items-center gap-1 lg:gap-2 bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 text-yellow-400 px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl border border-yellow-500/30">
-                <Crown className="w-3 lg:w-4 h-3 lg:h-4" />
-                <span className="font-medium text-sm lg:text-base">Pro</span>
-              </div>
-            )}
-          </div>
-
-          <div className="text-center lg:text-center">
-            <h1 className="text-xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
-              Text Behind Creator
-            </h1>
-            <p className="text-gray-400 text-xs lg:text-sm mt-1 hidden lg:block">
-              Create stunning text-behind-subject effects
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 lg:gap-3 flex-wrap">
-            {canvasReady && (
-              <>
+              {/* Pro Status - Premium Design */}
+              {!hasPremiumAccess ? (
                 <button
-                  onClick={handleReset}
-                  className="group px-3 lg:px-5 py-2 lg:py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 border border-white/20 hover:border-white/30 font-medium text-sm lg:text-base">
-                  <span className="group-hover:scale-105 inline-block transition-transform duration-200">
-                    Reset
-                  </span>
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="group flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2.5 rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-[1.02] border border-emerald-400/20">
+                  <Crown className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                  <span className="font-bold text-sm">Upgrade Pro</span>
                 </button>
-                {!hasBeenAutoSaved && (
+              ) : (
+                <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 text-yellow-400 px-4 py-2.5 rounded-2xl border border-yellow-500/20 shadow-lg shadow-yellow-500/10">
+                  <Crown className="w-4 h-4" />
+                  <span className="font-bold text-sm">Pro Member</span>
+                </div>
+              )}
+            </div>
+
+            {/* Center - Title */}
+            <div className="text-center sm:flex-1">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-200 bg-clip-text text-transparent mb-1">
+                Text Behind Creator
+              </h1>
+              <p className="text-gray-400 text-sm sm:text-base font-medium hidden sm:block">
+                Create stunning text-behind-subject effects with AI
+              </p>
+            </div>
+
+            {/* Right Section - Action Buttons (Hidden on Mobile, Visible on Desktop) */}
+            <div className="hidden lg:flex items-center gap-3">
+              {canvasReady && (
+                <>
                   <button
-                    onClick={handleSaveProject}
-                    disabled={saving}
-                    className="group flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-blue-800 disabled:to-blue-900 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium">
-                    <Save className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                    <span>{saving ? 'Saving...' : 'Save Project'}</span>
+                    onClick={handleReset}
+                    className="group px-4 py-2.5 bg-gray-800/50 hover:bg-gray-700/50 text-white rounded-2xl transition-all duration-300 border border-gray-700/50 hover:border-gray-600/50 font-semibold text-sm hover:scale-[1.02] hover:shadow-lg">
+                    <span className="group-hover:scale-105 inline-block transition-transform duration-300">
+                      Reset
+                    </span>
                   </button>
-                )}
 
-                {hasBeenAutoSaved && (
-                  <div className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600/20 border border-emerald-500/50 text-emerald-300 rounded-xl">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <span className="text-sm font-medium">Auto-Saved</span>
-                  </div>
-                )}
-                <button
-                  onClick={() => setShowDownloadModal(true)}
-                  disabled={isDownloading}
-                  className="group flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 disabled:from-emerald-800 disabled:to-emerald-900 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-medium">
-                  {isDownloading ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  ) : (
-                    <Download className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+                  {!hasBeenAutoSaved && (
+                    <button
+                      onClick={handleSaveProject}
+                      disabled={saving}
+                      className="group flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-blue-800 disabled:to-blue-900 disabled:cursor-not-allowed text-white rounded-2xl transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 font-semibold text-sm hover:scale-[1.02]">
+                      <Save className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                      <span>{saving ? 'Saving...' : 'Save Project'}</span>
+                    </button>
                   )}
-                  <span>{isDownloading ? 'Downloading...' : 'Download'}</span>
-                </button>
-              </>
-            )}
+
+                  {hasBeenAutoSaved && (
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl shadow-lg shadow-emerald-500/10">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span className="text-sm font-bold">Auto-Saved</span>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => setShowDownloadModal(true)}
+                    disabled={isDownloading}
+                    className="group flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:from-emerald-800 disabled:to-emerald-900 disabled:cursor-not-allowed text-white rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 font-semibold text-sm hover:scale-[1.02]">
+                    {isDownloading ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    ) : (
+                      <Download className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                    )}
+                    <span>{isDownloading ? 'Downloading...' : 'Download'}</span>
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {!imageSrc ? (
-        // Enhanced Upload state
-        <div className="flex items-center justify-center min-h-[calc(100vh-120px)] p-8 relative">
-          {/* Background Elements */}
+        // Premium Upload State - Mobile First
+        <div className="flex items-center justify-center min-h-[calc(100vh-120px)] p-4 sm:p-6 lg:p-8 relative">
+          {/* Premium Background Elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-400/5 rounded-full blur-3xl"></div>
+            <div className="absolute top-1/4 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-emerald-500/5 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-emerald-400/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 sm:w-48 h-32 sm:h-48 bg-blue-500/3 rounded-full blur-2xl"></div>
           </div>
 
-          <div className="max-w-4xl w-full relative z-10">
-            <div className="text-center mb-12">
-              {/* Badge */}
-              <div className="inline-flex items-center bg-gradient-to-r from-emerald-500/20 to-emerald-400/20 backdrop-blur-sm text-emerald-400 text-sm font-semibold px-4 py-2 rounded-2xl mb-6 border border-emerald-500/20">
+          <div className="max-w-6xl w-full relative z-10">
+            <div className="text-center mb-8 sm:mb-12">
+              {/* Premium Badge */}
+              <div className="inline-flex items-center bg-gradient-to-r from-emerald-500/10 to-emerald-400/10 backdrop-blur-xl text-emerald-400 text-sm sm:text-base font-bold px-4 sm:px-6 py-2 sm:py-3 rounded-2xl mb-6 sm:mb-8 border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
                 <svg
-                  className="w-4 h-4 mr-2"
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
                   fill="currentColor"
                   viewBox="0 0 20 20">
                   <path
@@ -1549,25 +2105,28 @@ export default function TextBehindCreator() {
                 AI-Powered Background Separation
               </div>
 
-              <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6 leading-tight">
-                Create Stunning{' '}
-                <span className="bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
+              <h2 className="text-2xl sm:text-4xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
+                <span className="bg-gradient-to-r from-white via-gray-100 to-gray-200 bg-clip-text text-transparent">
+                  Create Stunning
+                </span>
+                <br className="hidden sm:block" />
+                <span className="bg-gradient-to-r from-emerald-400 via-emerald-300 to-emerald-500 bg-clip-text text-transparent">
                   Text Behind Effects
                 </span>
               </h2>
 
-              <p className="text-lg lg:text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed font-medium">
                 Upload any image and we'll automatically separate the foreground
                 subject, allowing you to place text behind it for professional,
-                eye-catching visuals.
+                eye-catching visuals that stand out.
               </p>
 
-              {/* Feature highlights - Mobile Responsive */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-8 lg:mb-12 max-w-3xl mx-auto">
-                <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-emerald-500/30 transition-all duration-300">
-                  <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4 mx-auto">
+              {/* Premium Feature Cards - Mobile First */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12 max-w-5xl mx-auto">
+                <div className="group bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 hover:border-emerald-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:scale-[1.02]">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform duration-300">
                     <svg
-                      className="w-6 h-6 text-emerald-400"
+                      className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24">
@@ -1579,18 +2138,19 @@ export default function TextBehindCreator() {
                       />
                     </svg>
                   </div>
-                  <h3 className="text-white font-semibold mb-2">
+                  <h3 className="text-white font-bold text-lg sm:text-xl mb-3 text-center">
                     Any Resolution
                   </h3>
-                  <p className="text-gray-400 text-sm">
-                    Works with all image sizes and resolutions
+                  <p className="text-gray-400 text-sm sm:text-base text-center leading-relaxed">
+                    Works with all image sizes and resolutions for perfect
+                    results
                   </p>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-emerald-500/30 transition-all duration-300">
-                  <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4 mx-auto">
+                <div className="group bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 hover:border-blue-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:scale-[1.02]">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform duration-300">
                     <svg
-                      className="w-6 h-6 text-emerald-400"
+                      className="w-7 h-7 sm:w-8 sm:h-8 text-blue-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24">
@@ -1602,18 +2162,19 @@ export default function TextBehindCreator() {
                       />
                     </svg>
                   </div>
-                  <h3 className="text-white font-semibold mb-2">
+                  <h3 className="text-white font-bold text-lg sm:text-xl mb-3 text-center">
                     AI Processing
                   </h3>
-                  <p className="text-gray-400 text-sm">
-                    Advanced background removal technology
+                  <p className="text-gray-400 text-sm sm:text-base text-center leading-relaxed">
+                    Advanced AI background removal technology for precise
+                    results
                   </p>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-emerald-500/30 transition-all duration-300">
-                  <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4 mx-auto">
+                <div className="group bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 hover:border-purple-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 hover:scale-[1.02]">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform duration-300">
                     <svg
-                      className="w-6 h-6 text-emerald-400"
+                      className="w-7 h-7 sm:w-8 sm:h-8 text-purple-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24">
@@ -1625,11 +2186,11 @@ export default function TextBehindCreator() {
                       />
                     </svg>
                   </div>
-                  <h3 className="text-white font-semibold mb-2">
+                  <h3 className="text-white font-bold text-lg sm:text-xl mb-3 text-center">
                     Full Control
                   </h3>
-                  <p className="text-gray-400 text-sm">
-                    Customize fonts, colors, and positioning
+                  <p className="text-gray-400 text-sm sm:text-base text-center leading-relaxed">
+                    Customize fonts, colors, and positioning with precision
                   </p>
                 </div>
               </div>
@@ -1644,15 +2205,15 @@ export default function TextBehindCreator() {
                 hasReachedLimit &&
                 !hasPremiumAccess
               }
-              disabledMessage={`You've reached your limit of ${currentLimit} free generations`}
+              disabledMessage={`You've reached your limit of ${currentLimit} free generations per month`}
             />
           </div>
         </div>
       ) : (
-        // Enhanced Editor state - Mobile Responsive Layout
+        // Mobile-First Editor Layout - Image First, Controls Below on Mobile, Side-by-Side on Desktop
         <div className="flex flex-col lg:flex-row h-[calc(100vh-120px)]">
-          {/* Enhanced Canvas Area - Mobile Responsive */}
-          <div className="flex-1 flex items-center justify-center p-4 lg:p-8 bg-gradient-to-br from-gray-800/30 to-gray-900/50 relative min-h-[60vh] lg:min-h-auto">
+          {/* Canvas Area - Mobile: Full Width First, Desktop: Flex-1 Left Side */}
+          <div className="w-full lg:flex-1 flex items-center justify-center p-3 sm:p-4 lg:p-8 bg-gradient-to-br from-gray-800/30 to-gray-900/50 relative h-[60vh] lg:h-full order-1 lg:order-1">
             {/* Background pattern */}
             <div className="absolute inset-0 opacity-5">
               <div
@@ -1815,175 +2376,255 @@ export default function TextBehindCreator() {
             )}
           </div>
 
-          {/* Enhanced Controls Panel - Mobile Responsive */}
-          <div className="w-full lg:w-96 bg-white/5 backdrop-blur-sm border-t lg:border-t-0 lg:border-l border-white/10 overflow-y-auto max-h-[40vh] lg:max-h-none">
-            {/* Panel Header - Mobile Responsive */}
-            <div className="p-4 lg:p-6 border-b border-white/10">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-6 lg:w-8 h-6 lg:h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-3 lg:w-4 h-3 lg:h-4 text-emerald-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-base lg:text-lg font-semibold text-white">
-                    Text Controls
-                  </h3>
-                  <p className="text-xs text-gray-400 hidden lg:block">
-                    Customize your text-behind effect
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Controls Content - Mobile Responsive */}
-            <div className="p-4 lg:p-6 space-y-4 lg:space-y-8">
-              <TextControls
-                text={text}
-                setText={setText}
-                position={textPosition}
-                setPosition={setTextPosition}
-                fontSize={customFontSize}
-                setFontSize={setCustomFontSize}
-                rotation={textRotation}
-                setRotation={setTextRotation}
-                disabled={
-                  !profileLoading &&
-                  !!userProfile &&
-                  hasReachedLimit &&
-                  !hasPremiumAccess
-                }
-                disabledMessage="Upgrade to Pro to edit text"
-              />
-
-              <FontSelector selectedFont={font} onFontChange={setFont} />
-
-              {/* Zoom Controls */}
-              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <ZoomIn className="w-4 h-4 text-emerald-400" />
-                    <span className="text-sm font-semibold text-white">
-                      Zoom
+          {/* Controls Panel - Mobile: Below Canvas, Desktop: Right Sidebar */}
+          <div className="w-full bg-white/5 backdrop-blur-sm border-t border-white/10 order-2 lg:order-2 lg:w-96 lg:border-t-0 lg:border-l lg:max-h-none">
+            {/* Mobile: Collapsible sections, Desktop: Full panel */}
+            <div className="max-h-[45vh] lg:max-h-full overflow-y-auto">
+              {/* Touch-Friendly Panel Header */}
+              <div className="p-4 sm:p-5 lg:p-6 border-b border-white/10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 lg:w-10 lg:h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                      <svg
+                        className="w-4 h-4 lg:w-5 lg:h-5 text-emerald-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg lg:text-xl font-bold text-white">
+                        Text Controls
+                      </h3>
+                      <p className="text-sm text-gray-400 hidden sm:block">
+                        Customize your text-behind effect
+                      </p>
+                    </div>
+                  </div>
+                  {/* Mobile: Show current text preview */}
+                  <div className="sm:hidden bg-white/10 px-3 py-1 rounded-lg">
+                    <span className="text-xs text-emerald-300 font-medium">
+                      {text.length > 15 ? text.substring(0, 15) + '...' : text}
                     </span>
                   </div>
-                  <span className="text-xs text-emerald-300 bg-emerald-500/20 px-2 py-1 rounded-md">
-                    {Math.round(zoomLevel * 100)}%
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  {/* Zoom Buttons */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleZoomIn}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/50 rounded-lg transition-all duration-200 group"
-                      title="Zoom In (Ctrl + Scroll)">
-                      <ZoomIn className="w-4 h-4 text-gray-300 group-hover:text-emerald-400" />
-                      <span className="text-sm text-gray-300 group-hover:text-white">
-                        In
-                      </span>
-                    </button>
-
-                    <button
-                      onClick={handleZoomOut}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/50 rounded-lg transition-all duration-200 group"
-                      title="Zoom Out (Ctrl + Scroll)">
-                      <ZoomOut className="w-4 h-4 text-gray-300 group-hover:text-emerald-400" />
-                      <span className="text-sm text-gray-300 group-hover:text-white">
-                        Out
-                      </span>
-                    </button>
-
-                    <button
-                      onClick={handleResetZoom}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/50 rounded-lg transition-all duration-200 group"
-                      title="Reset Zoom & Pan">
-                      <RotateCcw className="w-4 h-4 text-gray-300 group-hover:text-emerald-400" />
-                      <span className="text-sm text-gray-300 group-hover:text-white">
-                        Reset
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* Zoom Instructions */}
-                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
-                    <div className="text-xs text-emerald-300 font-medium mb-1">
-                      💡 Zoom Tips
-                    </div>
-                    <div className="text-xs text-gray-400 space-y-1">
-                      <div>• Ctrl + Scroll to zoom</div>
-                      <div>• Ctrl + Drag to pan around</div>
-                      <div>• Use zoom for precise positioning</div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
-              <StyleSelector
-                selectedColor={textColor}
-                onColorChange={setTextColor}
-                opacity={textOpacity}
-                onOpacityChange={setTextOpacity}
-                fontWeight={fontWeight}
-                onFontWeightChange={setFontWeight}
-                fontStyle={fontStyle}
-                onFontStyleChange={setFontStyle}
-                textDecoration={textDecoration}
-                onTextDecorationChange={setTextDecoration}
-              />
+              {/* Touch-Friendly Controls Content */}
+              <div className="p-4 sm:p-5 lg:p-6 space-y-6 sm:space-y-8 lg:space-y-10 pb-24 lg:pb-6">
+                <TextControls
+                  text={text}
+                  setText={setText}
+                  position={textPosition}
+                  setPosition={setTextPosition}
+                  fontSize={customFontSize}
+                  setFontSize={setCustomFontSize}
+                  rotation={textRotation}
+                  setRotation={setTextRotation}
+                  disabled={
+                    !profileLoading &&
+                    !!userProfile &&
+                    hasReachedLimit &&
+                    !hasPremiumAccess
+                  }
+                  disabledMessage="Upgrade to Pro to edit text"
+                />
 
-              {/* Quick Actions */}
-              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 text-emerald-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-                  Quick Actions
-                </h4>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => setTextPosition({ x: 50, y: 50 })}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
-                    Center Text
-                  </button>
-                  <button
-                    onClick={() => setTextRotation(0)}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
-                    Reset Rotation
-                  </button>
-                  <button
-                    onClick={() => setIsEditingText(true)}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
-                    Edit Text Content
-                  </button>
-                  <button
-                    onClick={handleResetZoom}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
-                    Reset Zoom & Pan
-                  </button>
+                <FontSelector selectedFont={font} onFontChange={setFont} />
+
+                {/* Text Effects - MOVED UP FOR EASY ACCESS */}
+                <TextEffects
+                  textEffect={textEffect}
+                  onTextEffectChange={setTextEffect}
+                  glowColor={glowColor}
+                  onGlowColorChange={setGlowColor}
+                  disabled={hasReachedLimit}
+                  disabledMessage={`You've reached your limit of ${currentLimit} free generations per month`}
+                />
+
+                {/* Zoom Controls */}
+                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <ZoomIn className="w-4 h-4 text-emerald-400" />
+                      <span className="text-sm font-semibold text-white">
+                        Zoom
+                      </span>
+                    </div>
+                    <span className="text-xs text-emerald-300 bg-emerald-500/20 px-2 py-1 rounded-md">
+                      {Math.round(zoomLevel * 100)}%
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
+                    {/* Zoom Buttons */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleZoomIn}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/50 rounded-lg transition-all duration-200 group"
+                        title="Zoom In (Ctrl + Scroll)">
+                        <ZoomIn className="w-4 h-4 text-gray-300 group-hover:text-emerald-400" />
+                        <span className="text-sm text-gray-300 group-hover:text-white">
+                          In
+                        </span>
+                      </button>
+
+                      <button
+                        onClick={handleZoomOut}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/50 rounded-lg transition-all duration-200 group"
+                        title="Zoom Out (Ctrl + Scroll)">
+                        <ZoomOut className="w-4 h-4 text-gray-300 group-hover:text-emerald-400" />
+                        <span className="text-sm text-gray-300 group-hover:text-white">
+                          Out
+                        </span>
+                      </button>
+
+                      <button
+                        onClick={handleResetZoom}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/50 rounded-lg transition-all duration-200 group"
+                        title="Reset Zoom & Pan">
+                        <RotateCcw className="w-4 h-4 text-gray-300 group-hover:text-emerald-400" />
+                        <span className="text-sm text-gray-300 group-hover:text-white">
+                          Reset
+                        </span>
+                      </button>
+                    </div>
+
+                    {/* Zoom Instructions */}
+                    <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
+                      <div className="text-xs text-emerald-300 font-medium mb-1">
+                        💡 Zoom Tips
+                      </div>
+                      <div className="text-xs text-gray-400 space-y-1">
+                        <div>• Ctrl + Scroll to zoom</div>
+                        <div>• Ctrl + Drag to pan around</div>
+                        <div>• Use zoom for precise positioning</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <StyleSelector
+                  selectedColor={textColor}
+                  onColorChange={setTextColor}
+                  opacity={textOpacity}
+                  onOpacityChange={setTextOpacity}
+                  fontWeight={fontWeight}
+                  onFontWeightChange={setFontWeight}
+                  fontStyle={fontStyle}
+                  onFontStyleChange={setFontStyle}
+                  textDecoration={textDecoration}
+                  onTextDecorationChange={setTextDecoration}
+                />
+
+                {/* Advanced Text Controls - Pro Features from Fix Folder */}
+                <AdvancedTextControls
+                  letterSpacing={letterSpacing}
+                  setLetterSpacing={setLetterSpacing}
+                  tiltX={tiltX}
+                  setTiltX={setTiltX}
+                  tiltY={tiltY}
+                  setTiltY={setTiltY}
+                  disabled={hasReachedLimit}
+                  disabledMessage={`You've reached your limit of ${currentLimit} free generations per month`}
+                />
+
+                {/* Quick Actions */}
+                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                  <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 text-emerald-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
+                    </svg>
+                    Quick Actions
+                  </h4>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => setTextPosition({ x: 50, y: 50 })}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
+                      Center Text
+                    </button>
+                    <button
+                      onClick={() => setTextRotation(0)}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
+                      Reset Rotation
+                    </button>
+                    <button
+                      onClick={() => setIsEditingText(true)}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
+                      Edit Text Content
+                    </button>
+                    <button
+                      onClick={handleResetZoom}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
+                      Reset Zoom & Pan
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Mobile-First Sticky Action Bar */}
+          {canvasReady && (
+            <div className="fixed bottom-0 left-0 right-0 bg-gray-950/95 backdrop-blur-xl border-t border-gray-800/50 p-4 z-40 lg:hidden">
+              <div className="flex items-center justify-center gap-3 max-w-sm mx-auto">
+                {!hasBeenAutoSaved && (
+                  <button
+                    onClick={handleSaveProject}
+                    disabled={saving}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-blue-800 disabled:to-blue-900 disabled:cursor-not-allowed text-white rounded-2xl transition-all duration-300 shadow-lg shadow-blue-500/25 font-bold text-sm min-h-[48px] active:scale-95">
+                    <Save className="w-5 h-5" />
+                    <span>{saving ? 'Saving...' : 'Save'}</span>
+                  </button>
+                )}
+
+                {hasBeenAutoSaved && (
+                  <div className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl shadow-lg shadow-emerald-500/10 min-h-[48px]">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="font-bold text-sm">Saved</span>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => setShowDownloadModal(true)}
+                  disabled={isDownloading}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:from-emerald-800 disabled:to-emerald-900 disabled:cursor-not-allowed text-white rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-500/25 font-bold text-sm min-h-[48px] active:scale-95">
+                  {isDownloading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <Download className="w-5 h-5" />
+                  )}
+                  <span>{isDownloading ? 'Processing...' : 'Download'}</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -2000,6 +2641,7 @@ export default function TextBehindCreator() {
         isOpen={showDownloadModal}
         onClose={() => setShowDownloadModal(false)}
         onDownload={handleDownload}
+        hasPremiumAccess={hasPremiumAccess}
       />
 
       {/* Download Progress Overlay */}
@@ -2030,15 +2672,33 @@ export default function TextBehindCreator() {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-400">
                   {downloadProgress < 20 && 'Initializing...'}
-                  {downloadProgress >= 20 && downloadProgress < 40 && 'Loading image...'}
-                  {downloadProgress >= 40 && downloadProgress < 50 && 'Calculating dimensions...'}
-                  {downloadProgress >= 50 && downloadProgress < 60 && 'Drawing background...'}
-                  {downloadProgress >= 60 && downloadProgress < 70 && 'Rendering text...'}
-                  {downloadProgress >= 70 && downloadProgress < 80 && 'Loading foreground...'}
-                  {downloadProgress >= 80 && downloadProgress < 85 && 'Drawing foreground...'}
-                  {downloadProgress >= 85 && downloadProgress < 90 && 'Converting to image...'}
-                  {downloadProgress >= 90 && downloadProgress < 95 && 'Auto-saving project...'}
-                  {downloadProgress >= 95 && downloadProgress < 100 && 'Preparing download...'}
+                  {downloadProgress >= 20 &&
+                    downloadProgress < 40 &&
+                    'Loading image...'}
+                  {downloadProgress >= 40 &&
+                    downloadProgress < 50 &&
+                    'Calculating dimensions...'}
+                  {downloadProgress >= 50 &&
+                    downloadProgress < 60 &&
+                    'Drawing background...'}
+                  {downloadProgress >= 60 &&
+                    downloadProgress < 70 &&
+                    'Rendering text...'}
+                  {downloadProgress >= 70 &&
+                    downloadProgress < 80 &&
+                    'Loading foreground...'}
+                  {downloadProgress >= 80 &&
+                    downloadProgress < 85 &&
+                    'Drawing foreground...'}
+                  {downloadProgress >= 85 &&
+                    downloadProgress < 90 &&
+                    'Converting to image...'}
+                  {downloadProgress >= 90 &&
+                    downloadProgress < 95 &&
+                    'Auto-saving project...'}
+                  {downloadProgress >= 95 &&
+                    downloadProgress < 100 &&
+                    'Preparing download...'}
                   {downloadProgress >= 100 && 'Complete!'}
                 </span>
                 <span className="text-emerald-400 font-medium">
@@ -2147,10 +2807,11 @@ export default function TextBehindCreator() {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">
-                Generation Limit Reached
+                Monthly Limit Reached
               </h2>
               <p className="text-gray-400">
-                You've used all {currentLimit} of your free generations
+                You've used all {currentLimit} of your free generations this
+                month
               </p>
             </div>
 

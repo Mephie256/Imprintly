@@ -78,9 +78,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Sync timeout')), 5000)
           )
-          profile = await Promise.race([syncPromise, timeoutPromise]) as any
+          profile = (await Promise.race([syncPromise, timeoutPromise])) as any
         } catch (syncError) {
-          console.warn('Sync failed or timed out, using mock profile:', syncError)
+          console.warn(
+            'Sync failed or timed out, using mock profile:',
+            syncError
+          )
           // Fall back to mock profile if sync fails
           const firstName = user.firstName || ''
           const lastName = user.lastName || ''
@@ -222,7 +225,7 @@ export function useUsageLimits() {
   const { userProfile, incrementUsage, loading } = useUserProfile()
 
   const limits = {
-    free: 3,
+    free: 6,
     monthly: 1000,
     yearly: 10000,
   }
@@ -230,9 +233,9 @@ export function useUsageLimits() {
   // If profile is still loading, return safe defaults
   if (loading || !userProfile) {
     return {
-      currentLimit: 3,
+      currentLimit: 6,
       currentUsage: 0,
-      remainingUsage: 3,
+      remainingUsage: 6,
       hasReachedLimit: false, // Important: Don't block while loading
       usagePercentage: 0,
       incrementUsage,

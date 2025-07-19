@@ -1,0 +1,245 @@
+/* Mobile Touch Optimizations */
+
+/* Touch-friendly slider styling */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.slider::-webkit-slider-track {
+  background: rgb(55 65 81);
+  height: 12px;
+  border-radius: 6px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgb(16 185 129);
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  background: rgb(5 150 105);
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(16, 185, 129, 0.4);
+}
+
+.slider::-webkit-slider-thumb:active {
+  transform: scale(1.2);
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.5);
+}
+
+/* Firefox slider styling */
+.slider::-moz-range-track {
+  background: rgb(55 65 81);
+  height: 12px;
+  border-radius: 6px;
+  border: none;
+}
+
+.slider::-moz-range-thumb {
+  background: rgb(16 185 129);
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  background: rgb(5 150 105);
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(16, 185, 129, 0.4);
+}
+
+.slider::-moz-range-thumb:active {
+  transform: scale(1.2);
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.5);
+}
+
+/* Touch-friendly scrollbars */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(75 85 99) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99);
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
+}
+
+/* Mobile-specific touch optimizations */
+@media (max-width: 768px) {
+  /* Increase touch targets on mobile */
+  .slider::-webkit-slider-thumb {
+    height: 28px;
+    width: 28px;
+  }
+  
+  .slider::-moz-range-thumb {
+    height: 28px;
+    width: 28px;
+  }
+  
+  /* Better touch feedback */
+  button:active {
+    transform: scale(0.95);
+  }
+  
+  /* Prevent text selection on touch */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Smooth scrolling on mobile */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Better focus states for accessibility */
+  input:focus,
+  button:focus,
+  textarea:focus {
+    outline: 2px solid rgb(16 185 129);
+    outline-offset: 2px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .slider::-webkit-slider-thumb {
+    border: 2px solid white;
+  }
+  
+  .slider::-moz-range-thumb {
+    border: 2px solid white;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .slider::-webkit-slider-thumb {
+    transition: none;
+  }
+  
+  .slider::-moz-range-thumb {
+    transition: none;
+  }
+  
+  button {
+    transition: none;
+  }
+  
+  .transition-all,
+  .transition-colors,
+  .transition-transform {
+    transition: none !important;
+  }
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+  .slider::-webkit-slider-track {
+    background: rgb(31 41 55);
+  }
+  
+  .slider::-moz-range-track {
+    background: rgb(31 41 55);
+  }
+}
+
+/* Landscape mobile optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Adjust sticky action bar for landscape */
+  .fixed.bottom-0 {
+    padding: 8px 16px;
+  }
+  
+  /* Reduce vertical spacing in landscape */
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+  
+  .space-y-8 > * + * {
+    margin-top: 1.5rem;
+  }
+}
+
+/* Large touch devices (tablets) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Optimize for tablet touch */
+  .min-h-\[44px\] {
+    min-height: 48px;
+  }
+  
+  .min-h-\[48px\] {
+    min-height: 52px;
+  }
+}
+
+/* Safe area support for devices with notches */
+@supports (padding: max(0px)) {
+  .fixed.bottom-0 {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Hover states only for devices that support hover */
+@media (hover: hover) and (pointer: fine) {
+  .hover\:scale-\[1\.02\]:hover {
+    transform: scale(1.02);
+  }
+  
+  .hover\:shadow-lg:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Remove hover effects on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .hover\:scale-\[1\.02\]:hover {
+    transform: none;
+  }
+  
+  .hover\:shadow-lg:hover {
+    box-shadow: none;
+  }
+  
+  .hover\:bg-white\/20:hover {
+    background-color: inherit;
+  }
+  
+  .hover\:border-gray-500:hover {
+    border-color: inherit;
+  }
+}

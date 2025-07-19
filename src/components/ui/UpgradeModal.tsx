@@ -108,7 +108,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 <div className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                   <span className="text-gray-300">
-                    3 text-behind effects total
+                    6 text-behind effects per month
                   </span>
                 </div>
                 <div className="flex items-center gap-3">

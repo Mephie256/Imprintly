@@ -18,6 +18,10 @@ import {
   TrendingUp,
   Download,
   AlertCircle,
+  LayoutDashboard,
+  Plus,
+  FolderOpen,
+  User,
 } from 'lucide-react'
 
 // Types for billing history
@@ -186,15 +190,45 @@ export default function BillingPage() {
 
   return (
     <div className="bg-gray-900 text-gray-300 min-h-screen relative modern-background">
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-sm border-t border-white/10">
+        <div className="flex items-center justify-around py-2 px-4">
+          <Link
+            href="/dashboard"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <LayoutDashboard className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Dashboard</span>
+          </Link>
+          <Link
+            href="/create"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <Plus className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Create</span>
+          </Link>
+          <Link
+            href="/dashboard/projects"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <FolderOpen className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Projects</span>
+          </Link>
+          <Link
+            href="/dashboard/billing"
+            className="flex flex-col items-center p-2 text-emerald-400">
+            <User className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Account</span>
+          </Link>
+        </div>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-8 pb-20 md:pb-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 space-y-4 md:space-y-0">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-xl flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-emerald-400" />
+            <div className="flex items-center gap-2 md:gap-3 mb-2">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-lg md:rounded-xl flex items-center justify-center">
+                <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
               </div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-xl md:text-2xl font-bold text-white">
                 Billing & Subscription 💳
               </h1>
             </div>
@@ -205,15 +239,18 @@ export default function BillingPage() {
 
           <Link
             href="/dashboard"
-            className="group flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all duration-200 text-gray-300 hover:text-white">
+            className="group flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg md:rounded-xl transition-all duration-200 text-gray-300 hover:text-white">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
-            <span className="font-medium">Back to Dashboard</span>
+            <span className="font-medium hidden md:inline">
+              Back to Dashboard
+            </span>
+            <span className="font-medium md:hidden">Back</span>
           </Link>
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-2 border border-white/10 mb-8">
-          <div className="flex space-x-2">
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl md:rounded-3xl p-1 md:p-2 border border-white/10 mb-6 md:mb-8">
+          <div className="flex space-x-1 md:space-x-2 overflow-x-auto">
             {[
               { id: 'overview', label: 'Overview', icon: TrendingUp },
               { id: 'plans', label: 'Plans', icon: Crown },
@@ -222,13 +259,16 @@ export default function BillingPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-200 ${
+                className={`flex-1 flex items-center justify-center gap-1 md:gap-2 py-2 md:py-3 px-2 md:px-4 rounded-xl md:rounded-2xl text-xs md:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-emerald-600 text-white shadow-lg'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}>
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <tab.icon className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">
+                  {tab.id === 'history' ? 'History' : tab.label}
+                </span>
               </button>
             ))}
           </div>
@@ -236,11 +276,13 @@ export default function BillingPage() {
 
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <motion.div {...fadeInUp} className="space-y-8">
+          <motion.div {...fadeInUp} className="space-y-6 md:space-y-8">
             {/* Current Plan Card */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white">Current Plan</h2>
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-6 lg:p-8 border border-white/10">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 space-y-3 md:space-y-0">
+                <h2 className="text-xl md:text-2xl font-bold text-white">
+                  Current Plan
+                </h2>
                 <span
                   className={`px-4 py-2 rounded-xl text-sm font-semibold ${
                     currentPlan === 'Free'
@@ -381,7 +423,7 @@ export default function BillingPage() {
                   <span className="text-sm text-gray-400">
                     {hasPremiumAccess
                       ? 'Unlimited'
-                      : `${currentUsage}/${currentLimit}`}
+                      : `${currentUsage}/${currentLimit} per month`}
                   </span>
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-3">
@@ -639,7 +681,9 @@ export default function BillingPage() {
             {historyError && (
               <div className="p-8 text-center">
                 <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-                <p className="text-red-400 mb-2">Failed to load billing history</p>
+                <p className="text-red-400 mb-2">
+                  Failed to load billing history
+                </p>
                 <p className="text-gray-400 text-sm mb-4">{historyError}</p>
                 <button
                   onClick={fetchBillingHistory}
@@ -650,84 +694,89 @@ export default function BillingPage() {
             )}
 
             {/* Empty State */}
-            {!isLoadingHistory && !historyError && billingHistory.length === 0 && (
-              <div className="p-8 text-center">
-                <Calendar className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400 mb-2">No billing history yet</p>
-                <p className="text-gray-500 text-sm">
-                  {currentPlan === 'Free'
-                    ? 'Upgrade to a paid plan to see your billing history here'
-                    : 'Your invoices and payment history will appear here'}
-                </p>
-              </div>
-            )}
+            {!isLoadingHistory &&
+              !historyError &&
+              billingHistory.length === 0 && (
+                <div className="p-8 text-center">
+                  <Calendar className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400 mb-2">No billing history yet</p>
+                  <p className="text-gray-500 text-sm">
+                    {currentPlan === 'Free'
+                      ? 'Upgrade to a paid plan to see your billing history here'
+                      : 'Your invoices and payment history will appear here'}
+                  </p>
+                </div>
+              )}
 
             {/* Billing History Table */}
-            {!isLoadingHistory && !historyError && billingHistory.length > 0 && (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Invoice
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-700">
-                    {billingHistory.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-700/50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                          {item.date}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                          {item.amount}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            item.status === 'paid'
-                              ? 'bg-emerald-600 text-white'
-                              : item.status === 'pending'
-                              ? 'bg-yellow-600 text-white'
-                              : 'bg-red-600 text-white'
-                          }`}>
-                            {item.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {item.invoice}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          {item.invoice_url ? (
-                            <a
-                              href={item.invoice_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 transition-colors duration-200">
-                              <Download className="w-4 h-4" />
-                              Download
-                            </a>
-                          ) : (
-                            <span className="text-gray-500">N/A</span>
-                          )}
-                        </td>
+            {!isLoadingHistory &&
+              !historyError &&
+              billingHistory.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-700">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                          Date
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                          Amount
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                          Invoice
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                          Actions
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody className="divide-y divide-gray-700">
+                      {billingHistory.map((item) => (
+                        <tr key={item.id} className="hover:bg-gray-700/50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                            {item.date}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                            {item.amount}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                item.status === 'paid'
+                                  ? 'bg-emerald-600 text-white'
+                                  : item.status === 'pending'
+                                  ? 'bg-yellow-600 text-white'
+                                  : 'bg-red-600 text-white'
+                              }`}>
+                              {item.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                            {item.invoice}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            {item.invoice_url ? (
+                              <a
+                                href={item.invoice_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 transition-colors duration-200">
+                                <Download className="w-4 h-4" />
+                                Download
+                              </a>
+                            ) : (
+                              <span className="text-gray-500">N/A</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
           </motion.div>
         )}
 

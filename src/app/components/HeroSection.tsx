@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { SignedIn, SignedOut } from '@clerk/nextjs'
 import PlayIcon from './PlayIcon'
+import SlidingImageCarousel from './SlidingImageCarousel'
 
 interface HeroSectionProps {
   staggerContainer: any
@@ -19,7 +20,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       variants={staggerContainer}
       initial="initial"
       animate="animate"
-      className="container mx-auto px-6 py-12 lg:py-16 text-center relative">
+      className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16 text-center relative">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl"></div>
@@ -41,7 +42,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 
       <motion.h1
         variants={fadeInUp}
-        className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white mb-6 leading-tight">
+        className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white mb-4 sm:mb-6 leading-tight px-2 sm:px-0">
         Text Behind Effects,{' '}
         <span className="bg-gradient-to-r from-emerald-400 to-emerald-500 bg-clip-text text-transparent">
           Made Easy.
@@ -50,13 +51,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 
       <motion.p
         variants={fadeInUp}
-        className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed font-medium">
-        Create stunning text-behind-subject effects. Place text behind your foreground subjects for
-        professional visuals that stand out with our intuitive editor.
+        className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed font-medium px-2 sm:px-0">
+        Create stunning text-behind-subject effects. Place text behind your
+        foreground subjects for professional visuals that stand out with our
+        intuitive editor.
       </motion.p>
       <motion.div
         variants={fadeInUp}
-        className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-12">
+        className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-8 sm:mb-12 px-4 sm:px-0">
         {/* Buttons for signed-out users */}
         <SignedOut>
           <motion.a
@@ -141,20 +143,20 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       </motion.div>
       <motion.h2
         variants={fadeInUp}
-        className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-4">
+        className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mb-3 sm:mb-4 px-2 sm:px-0">
         See The Magic
       </motion.h2>
       <motion.p
         variants={fadeInUp}
-        className="text-base leading-7 text-gray-300 mb-10 max-w-2xl mx-auto font-medium">
-        Create stunning text-behind-subject effects in just a few clicks.
-        See how text placed behind your subject creates professional depth.
+        className="text-sm sm:text-base leading-6 sm:leading-7 text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto font-medium px-4 sm:px-0">
+        Create stunning text-behind-subject effects in just a few clicks. See
+        how text placed behind your subject creates professional depth.
       </motion.p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 items-center max-w-5xl mx-auto px-4 sm:px-0">
         <motion.div
           variants={fadeInUp}
-          className="group relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700/50 hover:border-gray-600/50 transition-all duration-300">
+          className="group relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm p-4 sm:p-6 rounded-2xl shadow-2xl border border-gray-700/50 hover:border-gray-600/50 transition-all duration-300">
           <div className="flex items-center mb-4">
             <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
             <h3 className="text-lg font-bold text-white">Before</h3>
@@ -178,7 +180,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 
         <motion.div
           variants={fadeInUp}
-          className="group relative bg-gradient-to-br from-emerald-900/20 to-emerald-800/20 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-emerald-500/30 hover:border-emerald-400/50 transition-all duration-300">
+          className="group relative bg-gradient-to-br from-emerald-900/20 to-emerald-800/20 backdrop-blur-sm p-4 sm:p-6 rounded-2xl shadow-2xl border border-emerald-500/30 hover:border-emerald-400/50 transition-all duration-300">
           <div className="flex items-center mb-4">
             <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
             <h3 className="text-lg font-bold text-emerald-400">
@@ -209,6 +211,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         Illustrative example. Actual results depend on your creativity and
         chosen assets!
       </motion.p>
+
+      {/* Sliding Image Carousel */}
+      <motion.div variants={fadeInUp} className="mt-16">
+        <SlidingImageCarousel />
+      </motion.div>
     </motion.section>
   )
 }

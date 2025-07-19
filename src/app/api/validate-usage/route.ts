@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { validateUsagePermissions, validateRequestSecurity } from '@/lib/usage-security'
+import {
+  validateUsagePermissions,
+  validateRequestSecurity,
+} from '@/lib/usage-security'
 
 /**
  * Secure endpoint to validate if user can create new images
@@ -18,28 +21,30 @@ export async function POST(request: NextRequest) {
 
     // 2. Comprehensive usage validation
     const validation = await validateUsagePermissions(request, true)
-    
+
     if (!validation.success) {
       console.warn('🚫 Usage validation failed:', validation.error)
-      
+
       // Return detailed error information for limit reached
       if (validation.statusCode === 403 && validation.userProfile) {
         return NextResponse.json(
-          { 
+          {
             canCreate: false,
             error: validation.error,
-            current_usage: validation.userProfile.current_usage || validation.userProfile.usage_count,
+            current_usage:
+              validation.userProfile.current_usage ||
+              validation.userProfile.usage_count,
             limit: validation.userProfile.limit,
-            subscription_tier: validation.userProfile.subscription_tier
+            subscription_tier: validation.userProfile.subscription_tier,
           },
           { status: 200 } // Return 200 but with canCreate: false
         )
       }
-      
+
       return NextResponse.json(
-        { 
+        {
           canCreate: false,
-          error: validation.error
+          error: validation.error,
         },
         { status: validation.statusCode || 403 }
       )
@@ -47,11 +52,11 @@ export async function POST(request: NextRequest) {
 
     // 3. Calculate usage information
     const limits = {
-      free: 3,
+      free: 6,
       monthly: 1000,
       yearly: 10000,
     }
-    
+
     const userTier = validation.userProfile?.subscription_tier || 'free'
     const currentLimit = limits[userTier as keyof typeof limits] || limits.free
     const currentUsage = validation.userProfile?.usage_count || 0
@@ -63,7 +68,7 @@ export async function POST(request: NextRequest) {
       tier: userTier,
       usage: currentUsage,
       limit: currentLimit,
-      remaining
+      remaining,
     })
 
     return NextResponse.json({
@@ -73,16 +78,15 @@ export async function POST(request: NextRequest) {
         limit: currentLimit,
         remaining,
         subscription_tier: userTier,
-        is_premium: isPremium
-      }
+        is_premium: isPremium,
+      },
     })
-
   } catch (error) {
     console.error('Error in validate-usage API:', error)
     return NextResponse.json(
-      { 
+      {
         canCreate: false,
-        error: 'Internal server error' 
+        error: 'Internal server error',
       },
       { status: 500 }
     )
@@ -104,7 +108,7 @@ export async function GET(request: NextRequest) {
 
     // Get usage validation without requiring usage check
     const validation = await validateUsagePermissions(request, false)
-    
+
     if (!validation.success) {
       return NextResponse.json(
         { error: validation.error },
@@ -114,11 +118,11 @@ export async function GET(request: NextRequest) {
 
     // Return current usage status
     const limits = {
-      free: 3,
+      free: 6,
       monthly: 1000,
       yearly: 10000,
     }
-    
+
     const userTier = validation.userProfile?.subscription_tier || 'free'
     const currentLimit = limits[userTier as keyof typeof limits] || limits.free
     const currentUsage = validation.userProfile?.usage_count || 0
@@ -132,10 +136,9 @@ export async function GET(request: NextRequest) {
         remaining,
         subscription_tier: userTier,
         is_premium: isPremium,
-        can_create: remaining > 0 || isPremium
-      }
+        can_create: remaining > 0 || isPremium,
+      },
     })
-
   } catch (error) {
     console.error('Error in GET validate-usage API:', error)
     return NextResponse.json(

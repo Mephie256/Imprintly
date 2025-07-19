@@ -1,3 +1,6 @@
+/* Mobile Touch Optimizations */
+@import '../styles/mobile-touch.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,12 +8,51 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* shadcn/ui CSS variables */
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 3.9%;
+  --primary: 0 0% 9%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 96.1%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96.1%;
+  --muted-foreground: 0 0% 45.1%;
+  --accent: 0 0% 96.1%;
+  --accent-foreground: 0 0% 9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 89.8%;
+  --input: 0 0% 89.8%;
+  --ring: 0 0% 3.9%;
+  --radius: 0.5rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    /* shadcn/ui dark mode variables */
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
   }
 }
 
@@ -180,4 +222,130 @@ canvas {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
   text-rendering: optimizeLegibility;
+}
+
+/* Mobile-first responsive utilities */
+@layer utilities {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .safe-area-insets {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-container {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .mobile-text {
+    @apply text-sm md:text-base lg:text-lg;
+  }
+
+  .mobile-heading {
+    @apply text-xl md:text-2xl lg:text-3xl;
+  }
+
+  .mobile-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
+  }
+
+  .mobile-flex {
+    @apply flex flex-col md:flex-row gap-4 md:gap-6;
+  }
+}
+
+/* Touch and gesture optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+
+  .touch-optimized {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+/* Responsive typography scaling */
+@media (max-width: 767px) {
+  .responsive-text-xs {
+    font-size: 0.75rem;
+  }
+  .responsive-text-sm {
+    font-size: 0.875rem;
+  }
+  .responsive-text-base {
+    font-size: 1rem;
+  }
+  .responsive-text-lg {
+    font-size: 1.125rem;
+  }
+  .responsive-text-xl {
+    font-size: 1.25rem;
+  }
+  .responsive-text-2xl {
+    font-size: 1.5rem;
+  }
+  .responsive-text-3xl {
+    font-size: 1.875rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .responsive-text-xs {
+    font-size: 0.875rem;
+  }
+  .responsive-text-sm {
+    font-size: 1rem;
+  }
+  .responsive-text-base {
+    font-size: 1.125rem;
+  }
+  .responsive-text-lg {
+    font-size: 1.25rem;
+  }
+  .responsive-text-xl {
+    font-size: 1.5rem;
+  }
+  .responsive-text-2xl {
+    font-size: 1.875rem;
+  }
+  .responsive-text-3xl {
+    font-size: 2.25rem;
+  }
+}
+
+/* Mobile drawer and modal animations */
+.mobile-drawer {
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-drawer.open {
+  transform: translateY(0);
+}
+
+/* Improved focus states for mobile */
+@media (max-width: 767px) {
+  button:focus,
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: 2px solid #10b981;
+    outline-offset: 2px;
+  }
 }

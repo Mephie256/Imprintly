@@ -6,7 +6,7 @@
 
 ## ✅ Summary
 
-**Imprintly** is a SaaS platform where users can generate stunning images by adding their custom text — such as names, quotes, or Bible verses — on high-quality backgrounds. The free tier allows up to 3 image generations, after which users can upgrade via Stripe for unlimited access.
+**Imprintly** is a SaaS platform where users can generate stunning images by adding their custom text — such as names, quotes, or Bible verses — on high-quality backgrounds. The free tier allows up to 6 image generations per month, after which users can upgrade via Stripe for unlimited access.
 
 ---
 
@@ -18,13 +18,13 @@
 - Upload or select from template backgrounds
 - Add, customize, and position text overlay
 - Download the image
-- Track generation usage (max 3 on free tier)
+- Track generation usage (max 6 per month on free tier)
 - Upgrade to unlimited access with Stripe
 - View generation history
 
 ### 🔓 Free Tier
 
-- 3 image generations total
+- 6 image generations per month
 - Limited template gallery
 
 ### 💫 Paid Tier (via Stripe)
@@ -129,17 +129,17 @@ Track:
 
 ## 💽 Page Structure (Routes)
 
-| Route       | Purpose                                 |
-| ----------- | --------------------------------------- |
-| `/`         | Landing page (CTA, pricing, demo)       |
-| `/sign-in`  | Clerk sign in                           |
-| `/sign-up`  | Clerk sign up                           |
-| `/generate` | Main editor (canvas, image, text input) |
-| `/dashboard`| User dashboard and project management   |
-| `/account`  | Billing info, usage, upgrade            |
-| `/history`  | View past generations                   |
-| `/success`  | Stripe success redirect                 |
-| `/cancel`   | Stripe cancel redirect                  |
+| Route        | Purpose                                 |
+| ------------ | --------------------------------------- |
+| `/`          | Landing page (CTA, pricing, demo)       |
+| `/sign-in`   | Clerk sign in                           |
+| `/sign-up`   | Clerk sign up                           |
+| `/generate`  | Main editor (canvas, image, text input) |
+| `/dashboard` | User dashboard and project management   |
+| `/account`   | Billing info, usage, upgrade            |
+| `/history`   | View past generations                   |
+| `/success`   | Stripe success redirect                 |
+| `/cancel`    | Stripe cancel redirect                  |
 
 ---
 
@@ -173,15 +173,15 @@ Track:
 
 ## 🔄 MVP Development Plan
 
-| Phase | Feature                              | Tools                      |
-| ----- | ------------------------------------ | -------------------------- |
-| 1     | Auth (Clerk)                         | Clerk                      |
-| 2     | Image upload + text overlay (Canvas) | HTML5 Canvas / Konva       |
-| 3     | Save/download image                  | Canvas.toBlob + Supabase   |
-| 4     | Track user generation count          | Supabase DB                |
-| 5     | Limit to 3 free generations          | Supabase Logic + Guards    |
-| 6     | Stripe Checkout + Webhook            | Stripe                     |
-| 7     | Protected routes for paid features   | Clerk + user.is_subscribed |
+| Phase | Feature                               | Tools                      |
+| ----- | ------------------------------------- | -------------------------- |
+| 1     | Auth (Clerk)                          | Clerk                      |
+| 2     | Image upload + text overlay (Canvas)  | HTML5 Canvas / Konva       |
+| 3     | Save/download image                   | Canvas.toBlob + Supabase   |
+| 4     | Track user generation count           | Supabase DB                |
+| 5     | Limit to 6 free generations per month | Supabase Logic + Guards    |
+| 6     | Stripe Checkout + Webhook             | Stripe                     |
+| 7     | Protected routes for paid features    | Clerk + user.is_subscribed |
 
 ---
 

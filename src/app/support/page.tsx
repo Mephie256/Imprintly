@@ -4,19 +4,22 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { 
-  ArrowLeft, 
-  Mail, 
-  MessageCircle, 
-  HelpCircle, 
-  Book, 
+import {
+  ArrowLeft,
+  Mail,
+  MessageCircle,
+  HelpCircle,
+  Book,
   Zap,
   CheckCircle,
   Clock,
   Users,
   Star,
   Send,
-  ExternalLink
+  ExternalLink,
+  LayoutDashboard,
+  Plus,
+  FolderOpen,
 } from 'lucide-react'
 
 export default function SupportPage() {
@@ -26,39 +29,45 @@ export default function SupportPage() {
     email: '',
     subject: '',
     message: '',
-    category: 'general'
+    category: 'general',
   })
 
   const categories = [
     { id: 'general', label: 'General Support', icon: HelpCircle },
     { id: 'billing', label: 'Billing & Plans', icon: Zap },
     { id: 'technical', label: 'Technical Issues', icon: MessageCircle },
-    { id: 'feature', label: 'Feature Request', icon: Star }
+    { id: 'feature', label: 'Feature Request', icon: Star },
   ]
 
   const faqs = [
     {
       question: 'How do I create text-behind effects?',
-      answer: 'Simply upload an image, add your text, and our AI will automatically create the text-behind-object effect. You can customize fonts, colors, and positioning.'
+      answer:
+        'Simply upload an image, add your text, and our AI will automatically create the text-behind-object effect. You can customize fonts, colors, and positioning.',
     },
     {
       question: 'What file formats are supported?',
-      answer: 'We support JPG, PNG, and WebP image formats. For best results, use high-resolution images with clear subjects.'
+      answer:
+        'We support JPG, PNG, and WebP image formats. For best results, use high-resolution images with clear subjects.',
     },
     {
       question: 'How many effects can I create on the free plan?',
-      answer: 'The free plan includes 3 text-behind effects total. Upgrade to Pro for unlimited effects and premium features.'
+      answer:
+        'The free plan includes 3 text-behind effects total. Upgrade to Pro for unlimited effects and premium features.',
     },
     {
       question: 'Can I download my creations in high quality?',
-      answer: 'Yes! Pro users can download in 4K resolution. Free users get standard quality downloads.'
-    }
+      answer:
+        'Yes! Pro users can download in 4K resolution. Free users get standard quality downloads.',
+    },
   ]
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // Create mailto link with form data
-    const subject = encodeURIComponent(`[${formData.category.toUpperCase()}] ${formData.subject}`)
+    const subject = encodeURIComponent(
+      `[${formData.category.toUpperCase()}] ${formData.subject}`
+    )
     const body = encodeURIComponent(`
 Name: ${formData.name}
 Email: ${formData.email}
@@ -67,16 +76,46 @@ Category: ${formData.category}
 Message:
 ${formData.message}
     `)
-    
+
     window.location.href = `mailto:denisincredible8@gmail.com?subject=${subject}&body=${body}`
   }
 
   return (
     <div className="bg-gray-900 text-gray-300 min-h-screen relative modern-background">
-      <div className="relative z-10">
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-sm border-t border-white/10">
+        <div className="flex items-center justify-around py-2 px-4">
+          <Link
+            href="/dashboard"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <LayoutDashboard className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Dashboard</span>
+          </Link>
+          <Link
+            href="/create"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <Plus className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Create</span>
+          </Link>
+          <Link
+            href="/dashboard/projects"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <FolderOpen className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Projects</span>
+          </Link>
+          <Link
+            href="/support"
+            className="flex flex-col items-center p-2 text-emerald-400">
+            <HelpCircle className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Support</span>
+          </Link>
+        </div>
+      </div>
+
+      <div className="relative z-10 pb-20 md:pb-0">
         {/* Header */}
         <div className="bg-white/5 backdrop-blur-sm border-b border-white/10 shadow-lg">
-          <div className="flex items-center justify-between p-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 md:p-6 space-y-4 md:space-y-0">
             <div className="flex items-center gap-4">
               <Link
                 href="/dashboard"
@@ -84,9 +123,11 @@ ${formData.message}
                 <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" />
                 <span className="font-medium">Back to Dashboard</span>
               </Link>
-              
+
               {/* App Logo */}
-              <Link href="/" className="inline-flex items-center space-x-3 group">
+              <Link
+                href="/"
+                className="inline-flex items-center space-x-3 group">
                 <div className="relative">
                   <Image
                     src="https://i.ibb.co/0RYBCCPp/imageedit-3-7315062423.png"
@@ -119,7 +160,8 @@ ${formData.message}
               How can we help you?
             </h1>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Get the support you need to create amazing text-behind effects. We're here to help!
+              Get the support you need to create amazing text-behind effects.
+              We're here to help!
             </p>
           </motion.div>
 
@@ -134,7 +176,7 @@ ${formData.message}
                   <Mail className="w-6 h-6 text-emerald-400" />
                   Contact Support
                 </h2>
-                
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Category Selection */}
                   <div>
@@ -150,7 +192,10 @@ ${formData.message}
                             type="button"
                             onClick={() => {
                               setSelectedCategory(category.id)
-                              setFormData(prev => ({ ...prev, category: category.id }))
+                              setFormData((prev) => ({
+                                ...prev,
+                                category: category.id,
+                              }))
                             }}
                             className={`p-4 rounded-xl border transition-all duration-200 text-left ${
                               selectedCategory === category.id
@@ -158,7 +203,9 @@ ${formData.message}
                                 : 'bg-white/5 border-white/10 hover:border-white/20 text-gray-300'
                             }`}>
                             <Icon className="w-5 h-5 mb-2" />
-                            <div className="font-medium text-sm">{category.label}</div>
+                            <div className="font-medium text-sm">
+                              {category.label}
+                            </div>
                           </button>
                         )
                       })}
@@ -175,7 +222,12 @@ ${formData.message}
                         type="text"
                         required
                         value={formData.name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
                         className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                         placeholder="Enter your name"
                       />
@@ -188,7 +240,12 @@ ${formData.message}
                         type="email"
                         required
                         value={formData.email}
-                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
+                        }
                         className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                         placeholder="your@email.com"
                       />
@@ -203,7 +260,12 @@ ${formData.message}
                       type="text"
                       required
                       value={formData.subject}
-                      onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          subject: e.target.value,
+                        }))
+                      }
                       className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                       placeholder="Brief description of your issue"
                     />
@@ -217,7 +279,12 @@ ${formData.message}
                       required
                       rows={6}
                       value={formData.message}
-                      onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          message: e.target.value,
+                        }))
+                      }
                       className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200 resize-none"
                       placeholder="Please describe your issue or question in detail..."
                     />
@@ -255,7 +322,6 @@ ${formData.message}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="space-y-6">
-              
               {/* Response Time */}
               <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -265,15 +331,21 @@ ${formData.message}
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-4 h-4 text-emerald-400" />
-                    <span className="text-gray-300 text-sm">General: 24-48 hours</span>
+                    <span className="text-gray-300 text-sm">
+                      General: 24-48 hours
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-4 h-4 text-emerald-400" />
-                    <span className="text-gray-300 text-sm">Technical: 12-24 hours</span>
+                    <span className="text-gray-300 text-sm">
+                      Technical: 12-24 hours
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-4 h-4 text-emerald-400" />
-                    <span className="text-gray-300 text-sm">Billing: 6-12 hours</span>
+                    <span className="text-gray-300 text-sm">
+                      Billing: 6-12 hours
+                    </span>
                   </div>
                 </div>
               </div>

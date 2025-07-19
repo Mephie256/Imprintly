@@ -18,37 +18,86 @@ function SuccessPageContent() {
     const sessionIdParam = searchParams.get('session_id')
     setSessionId(sessionIdParam)
 
-    // Sync subscription and refresh user profile
+    // Sync subscription and refresh user profile with retries
     const syncAndRefresh = async () => {
-      try {
-        // First, manually sync subscription with Stripe
-        const response = await fetch('/api/sync-subscription', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
+      const maxRetries = 5
+      const retryDelay = 2000 // 2 seconds
 
-        if (response.ok) {
-          const result = await response.json()
-          console.log('✅ Subscription synced:', result)
-        } else {
-          console.warn('⚠️ Subscription sync failed, trying profile refresh')
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`🔄 Sync attempt ${attempt}/${maxRetries}`)
+
+          // First, try to sync using the session ID if available
+          if (sessionId) {
+            console.log('🔍 Syncing with session ID:', sessionId)
+            const sessionResponse = await fetch('/api/sync-session', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ sessionId }),
+            })
+
+            if (sessionResponse.ok) {
+              const sessionResult = await sessionResponse.json()
+              console.log('✅ Session synced:', sessionResult)
+            } else {
+              console.warn(`⚠️ Session sync failed (attempt ${attempt})`)
+            }
+          }
+
+          // Then, manually sync subscription with Stripe
+          const response = await fetch('/api/sync-subscription', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+
+          if (response.ok) {
+            const result = await response.json()
+            console.log('✅ Subscription synced:', result)
+          } else {
+            console.warn(`⚠️ Subscription sync failed (attempt ${attempt})`)
+          }
+
+          // Then refresh user profile
+          if (refreshUserProfile) {
+            await refreshUserProfile()
+          }
+
+          // Check if user now has subscription
+          if (userProfile?.subscription_status === 'active') {
+            console.log('✅ Subscription confirmed active!')
+            setIsLoading(false)
+            return
+          }
+
+          // If not the last attempt, wait before retrying
+          if (attempt < maxRetries) {
+            console.log(`⏳ Waiting ${retryDelay}ms before retry...`)
+            await new Promise((resolve) => setTimeout(resolve, retryDelay))
+          }
+        } catch (error) {
+          console.error(`❌ Sync attempt ${attempt} failed:`, error)
+
+          // If not the last attempt, wait before retrying
+          if (attempt < maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, retryDelay))
+          }
         }
+      }
 
-        // Then refresh user profile
+      // Final attempt to refresh profile even if sync failed
+      try {
         if (refreshUserProfile) {
           await refreshUserProfile()
         }
       } catch (error) {
-        console.error('Error syncing subscription:', error)
-        // Still try to refresh profile even if sync fails
-        if (refreshUserProfile) {
-          await refreshUserProfile()
-        }
-      } finally {
-        setIsLoading(false)
+        console.error('❌ Final profile refresh failed:', error)
       }
+
+      setIsLoading(false)
     }
 
     // Add a small delay to ensure Stripe has processed
@@ -87,31 +136,32 @@ function SuccessPageContent() {
   }
 
   const isPro =
-    userProfile?.subscription_tier === 'monthly' ||
-    userProfile?.subscription_tier === 'yearly'
+    (userProfile?.subscription_tier === 'monthly' ||
+      userProfile?.subscription_tier === 'yearly') &&
+    userProfile?.subscription_status === 'active'
 
   return (
     <div className="bg-gray-900 text-gray-300 min-h-screen relative modern-background">
-      <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-4 md:p-6">
         <motion.div
           variants={staggerContainer}
           initial="initial"
           animate="animate"
           className="max-w-2xl mx-auto text-center">
           {/* Success Icon */}
-          <motion.div variants={fadeInUp} className="mb-8">
-            <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 relative">
-              <CheckCircle className="w-12 h-12 text-emerald-400" />
+          <motion.div variants={fadeInUp} className="mb-6 md:mb-8">
+            <div className="w-20 h-20 md:w-24 md:h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 relative">
+              <CheckCircle className="w-10 h-10 md:w-12 md:h-12 text-emerald-400" />
               <div className="absolute inset-0 bg-emerald-400/20 rounded-full animate-ping"></div>
             </div>
           </motion.div>
 
           {/* Success Message */}
-          <motion.div variants={fadeInUp} className="mb-8">
-            <h1 className="text-4xl font-bold text-white mb-4">
+          <motion.div variants={fadeInUp} className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-4xl font-bold text-white mb-3 md:mb-4">
               🎉 Welcome to Pro!
             </h1>
-            <p className="text-xl text-gray-300 mb-6">
+            <p className="text-lg md:text-xl text-gray-300 mb-4 md:mb-6">
               Your subscription has been activated successfully
             </p>
 
@@ -145,6 +195,63 @@ function SuccessPageContent() {
                     Priority support
                   </li>
                 </ul>
+              </div>
+            )}
+
+            {/* Debug info for troubleshooting */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="bg-gray-800/50 rounded-lg p-4 mb-6 text-xs">
+                <h4 className="text-emerald-400 font-semibold mb-2">
+                  Debug Info:
+                </h4>
+                <p>Session ID: {sessionId}</p>
+                <p>
+                  Subscription Tier: {userProfile?.subscription_tier || 'none'}
+                </p>
+                <p>
+                  Subscription Status:{' '}
+                  {userProfile?.subscription_status || 'none'}
+                </p>
+                <p>
+                  Stripe Customer ID:{' '}
+                  {userProfile?.stripe_customer_id || 'none'}
+                </p>
+                <p>Is Pro: {isPro ? 'Yes' : 'No'}</p>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-3 py-1 bg-emerald-600 text-white rounded text-xs hover:bg-emerald-700">
+                    Refresh Page
+                  </button>
+                  {sessionId && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('/api/sync-session', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ sessionId }),
+                          })
+                          const result = await response.json()
+                          console.log('Manual sync result:', result)
+                          if (refreshUserProfile) {
+                            await refreshUserProfile()
+                          }
+                          alert(
+                            result.success
+                              ? 'Sync successful!'
+                              : 'Sync failed: ' + result.error
+                          )
+                        } catch (error) {
+                          console.error('Manual sync error:', error)
+                          alert('Sync failed: ' + error)
+                        }
+                      }}
+                      className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">
+                      Manual Sync
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </motion.div>
@@ -209,19 +316,18 @@ function SuccessPageContent() {
 
 export default function SuccessPage() {
   return (
-    <Suspense fallback={
-      <div className="bg-gray-900 text-gray-300 min-h-screen relative modern-background flex items-center justify-center">
-        <div className="relative z-10 text-center">
-          <Loader2 className="w-16 h-16 animate-spin text-emerald-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">
-            Loading...
-          </h1>
-          <p className="text-gray-400">
-            Please wait while we load your success page
-          </p>
+    <Suspense
+      fallback={
+        <div className="bg-gray-900 text-gray-300 min-h-screen relative modern-background flex items-center justify-center">
+          <div className="relative z-10 text-center">
+            <Loader2 className="w-16 h-16 animate-spin text-emerald-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-white mb-2">Loading...</h1>
+            <p className="text-gray-400">
+              Please wait while we load your success page
+            </p>
+          </div>
         </div>
-      </div>
-    }>
+      }>
       <SuccessPageContent />
     </Suspense>
   )

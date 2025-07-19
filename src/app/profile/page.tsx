@@ -16,6 +16,9 @@ import {
   Palette,
   Download,
   Crown,
+  LayoutDashboard,
+  Plus,
+  FolderOpen,
 } from 'lucide-react'
 import { useUserProfile, useHasPremiumAccess } from '@/contexts/UserContext'
 import { isPremiumUser, getPlanDisplayName } from '@/lib/payment-service'
@@ -156,8 +159,38 @@ export default function ProfileSettings() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-sm border-t border-white/10">
+        <div className="flex items-center justify-around py-2 px-4">
+          <Link
+            href="/dashboard"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <LayoutDashboard className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Dashboard</span>
+          </Link>
+          <Link
+            href="/create"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <Plus className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Create</span>
+          </Link>
+          <Link
+            href="/dashboard/projects"
+            className="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+            <FolderOpen className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Projects</span>
+          </Link>
+          <Link
+            href="/profile"
+            className="flex flex-col items-center p-2 text-emerald-400">
+            <User className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium">Profile</span>
+          </Link>
+        </div>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-8 pb-20 md:pb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
@@ -177,15 +210,24 @@ export default function ProfileSettings() {
                 <p className="text-gray-400 text-sm">
                   {user.primaryEmailAddress?.emailAddress}
                 </p>
-                <div className={`mt-3 px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1.5 ${
-                  isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status)
-                    ? 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 text-yellow-400 border border-yellow-500/30'
-                    : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
-                }`}>
-                  {isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status) && (
-                    <Crown className="w-3 h-3" />
-                  )}
-                  {getPlanDisplayName(userProfile?.subscription_tier, userProfile?.subscription_status)} Plan
+                <div
+                  className={`mt-3 px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1.5 ${
+                    isPremiumUser(
+                      userProfile?.subscription_tier,
+                      userProfile?.subscription_status
+                    )
+                      ? 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 text-yellow-400 border border-yellow-500/30'
+                      : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                  }`}>
+                  {isPremiumUser(
+                    userProfile?.subscription_tier,
+                    userProfile?.subscription_status
+                  ) && <Crown className="w-3 h-3" />}
+                  {getPlanDisplayName(
+                    userProfile?.subscription_tier,
+                    userProfile?.subscription_status
+                  )}{' '}
+                  Plan
                 </div>
               </div>
 
@@ -428,19 +470,30 @@ export default function ProfileSettings() {
                   </div>
 
                   <div className="space-y-4">
-                    <div className={`p-6 rounded-xl border transition-all duration-300 ${
-                      isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status)
-                        ? 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border-yellow-500/30'
-                        : 'bg-white/5 border-white/10'
-                    }`}>
+                    <div
+                      className={`p-6 rounded-xl border transition-all duration-300 ${
+                        isPremiumUser(
+                          userProfile?.subscription_tier,
+                          userProfile?.subscription_status
+                        )
+                          ? 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border-yellow-500/30'
+                          : 'bg-white/5 border-white/10'
+                      }`}>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                            isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status)
-                              ? 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/20'
-                              : 'bg-gray-500/20'
-                          }`}>
-                            {isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status) ? (
+                          <div
+                            className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                              isPremiumUser(
+                                userProfile?.subscription_tier,
+                                userProfile?.subscription_status
+                              )
+                                ? 'bg-gradient-to-r from-yellow-600/20 to-yellow-700/20'
+                                : 'bg-gray-500/20'
+                            }`}>
+                            {isPremiumUser(
+                              userProfile?.subscription_tier,
+                              userProfile?.subscription_status
+                            ) ? (
                               <Crown className="w-6 h-6 text-yellow-400" />
                             ) : (
                               <User className="w-6 h-6 text-gray-400" />
@@ -449,18 +502,34 @@ export default function ProfileSettings() {
                           <div>
                             <h3 className="text-white font-medium flex items-center gap-2">
                               Subscription Plan
-                              {isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status) && (
+                              {isPremiumUser(
+                                userProfile?.subscription_tier,
+                                userProfile?.subscription_status
+                              ) && (
                                 <Crown className="w-4 h-4 text-yellow-400" />
                               )}
                             </h3>
-                            <p className={`text-sm ${
-                              isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status)
-                                ? 'text-yellow-400'
-                                : 'text-gray-400'
-                            }`}>
-                              Current plan: {getPlanDisplayName(userProfile?.subscription_tier, userProfile?.subscription_status)}
-                              {isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status) && (
-                                <span className="ml-2 text-xs">• Unlimited Access</span>
+                            <p
+                              className={`text-sm ${
+                                isPremiumUser(
+                                  userProfile?.subscription_tier,
+                                  userProfile?.subscription_status
+                                )
+                                  ? 'text-yellow-400'
+                                  : 'text-gray-400'
+                              }`}>
+                              Current plan:{' '}
+                              {getPlanDisplayName(
+                                userProfile?.subscription_tier,
+                                userProfile?.subscription_status
+                              )}
+                              {isPremiumUser(
+                                userProfile?.subscription_tier,
+                                userProfile?.subscription_status
+                              ) && (
+                                <span className="ml-2 text-xs">
+                                  • Unlimited Access
+                                </span>
                               )}
                             </p>
                           </div>
@@ -468,11 +537,17 @@ export default function ProfileSettings() {
                         <Link
                           href="/dashboard/billing"
                           className={`px-4 py-2 rounded-lg transition-colors inline-flex items-center gap-2 font-medium ${
-                            isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status)
+                            isPremiumUser(
+                              userProfile?.subscription_tier,
+                              userProfile?.subscription_status
+                            )
                               ? 'bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 border border-yellow-500/30'
                               : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                           }`}>
-                          {isPremiumUser(userProfile?.subscription_tier, userProfile?.subscription_status) ? (
+                          {isPremiumUser(
+                            userProfile?.subscription_tier,
+                            userProfile?.subscription_status
+                          ) ? (
                             <>
                               <Crown className="w-4 h-4" />
                               Manage

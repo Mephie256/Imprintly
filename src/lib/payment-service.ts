@@ -15,7 +15,9 @@ export interface BillingPortalSession {
 /**
  * Create a Stripe checkout session for subscription
  */
-export async function createPaymentSession(planType: PlanType): Promise<PaymentSession> {
+export async function createPaymentSession(
+  planType: PlanType
+): Promise<PaymentSession> {
   try {
     const response = await fetch('/api/stripe/create-checkout-session', {
       method: 'POST',
@@ -136,13 +138,13 @@ export function getPricingInfo() {
       name: 'Free Tier',
       description: 'Perfect for trying out the platform',
       features: [
-        '3 text-behind effects',
+        '6 text-behind effects per month',
         'Basic templates',
         'Standard quality exports',
         'Community support',
       ],
       limitations: [
-        'Limited to 3 generations',
+        'Limited to 6 generations per month',
         'Basic templates only',
         'Standard quality',
       ],

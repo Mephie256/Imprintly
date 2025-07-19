@@ -106,7 +106,7 @@ export async function validateUsagePermissions(
     // 6. Usage Limit Validation (if required)
     if (requireUsageCheck) {
       const limits = {
-        free: 3,
+        free: 6,
         monthly: 1000,
         yearly: 10000,
       }
@@ -201,7 +201,7 @@ export async function secureIncrementUsage(userId: string): Promise<{
 
     // Double-check limits before incrementing
     const limits = {
-      free: 3,
+      free: 6,
       monthly: 1000,
       yearly: 10000,
     }

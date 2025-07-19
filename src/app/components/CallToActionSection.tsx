@@ -18,15 +18,15 @@ const CallToActionSection: React.FC<CallToActionSectionProps> = ({
       whileInView="animate"
       viewport={{ once: true, amount: 0.5 }}
       className="bg-gray-900/50 py-10 sm:py-14">
-      <div className="container mx-auto px-6 text-center">
+      <div className="container mx-auto px-4 sm:px-6 text-center">
         <SignedOut>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mb-3 sm:mb-4 px-2 sm:px-0">
             Content Creation{' '}
             <span className="bg-gradient-to-r from-emerald-400 to-emerald-500 bg-clip-text text-transparent">
               Reimagined.
             </span>
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-6 text-gray-300 font-medium">
+          <p className="mx-auto mt-3 sm:mt-4 max-w-xl text-sm sm:text-base leading-5 sm:leading-6 text-gray-300 font-medium px-4 sm:px-0">
             Stop wrestling with complex software. Start creating beautiful
             visuals with Imprintify today.
           </p>

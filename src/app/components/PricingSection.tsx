@@ -27,11 +27,14 @@ const PricingSection: React.FC<PricingSectionProps> = ({
         <div className="absolute bottom-1/3 left-1/4 w-96 h-96 bg-emerald-400/5 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="container mx-auto px-6 text-center relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 text-center relative z-10">
         <motion.div
           variants={fadeInUp}
           className="inline-flex items-center bg-gradient-to-r from-emerald-500/10 to-emerald-400/10 backdrop-blur-sm text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-xl mb-6 border border-emerald-500/20">
-          <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+          <svg
+            className="w-3 h-3 mr-1.5"
+            fill="currentColor"
+            viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
               d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
@@ -43,7 +46,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({
 
         <motion.h2
           variants={fadeInUp}
-          className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-4">
+          className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-3 sm:mb-4 px-2 sm:px-0">
           Simple,{' '}
           <span className="bg-gradient-to-r from-emerald-400 to-emerald-500 bg-clip-text text-transparent">
             Transparent
@@ -53,16 +56,16 @@ const PricingSection: React.FC<PricingSectionProps> = ({
 
         <motion.p
           variants={fadeInUp}
-          className="text-base leading-6 text-gray-300 mb-10 max-w-2xl mx-auto font-medium">
+          className="text-sm sm:text-base leading-5 sm:leading-6 text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto font-medium px-4 sm:px-0">
           Choose the plan that works best for you. No hidden fees, no surprises.
           Start free and upgrade when you're ready.
         </motion.p>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto px-4 sm:px-0">
           {/* Free Plan */}
           <motion.div
             variants={fadeInUp}
             whileHover={{ scale: 1.02, y: -4 }}
-            className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-gray-700/50 hover:border-gray-600/50 transition-all duration-300">
+            className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-2xl shadow-xl p-4 sm:p-6 border border-gray-700/50 hover:border-gray-600/50 transition-all duration-300">
             <div className="text-center">
               <h3 className="text-xl font-bold text-white mb-2">Free Tier</h3>
               <div className="mb-3">
@@ -77,7 +80,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({
                 <li className="flex items-center">
                   <CheckIcon />
                   <span className="ml-2 text-sm">
-                    3 text-behind effects total
+                    6 text-behind effects per month
                   </span>
                 </li>
                 <li className="flex items-center">
@@ -88,9 +91,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({
                 </li>
                 <li className="flex items-center">
                   <CheckIcon />
-                  <span className="ml-2 text-sm">
-                    Standard text styling
-                  </span>
+                  <span className="ml-2 text-sm">Standard text styling</span>
                 </li>
                 <li className="flex items-center">
                   <CheckIcon />
@@ -112,7 +113,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({
           <motion.div
             variants={fadeInUp}
             whileHover={{ scale: 1.05, y: -8 }}
-            className="relative bg-gradient-to-br from-emerald-900/40 to-emerald-800/40 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border-2 border-emerald-500/50 hover:border-emerald-400/70 transition-all duration-300 transform scale-105 z-10">
+            className="relative bg-gradient-to-br from-emerald-900/40 to-emerald-800/40 backdrop-blur-sm rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-emerald-500/50 hover:border-emerald-400/70 transition-all duration-300 transform scale-105 z-10">
             {/* Popular Badge */}
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
               <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold uppercase py-2 px-6 rounded-full shadow-lg">
@@ -136,7 +137,9 @@ const PricingSection: React.FC<PricingSectionProps> = ({
               <ul className="space-y-4 text-gray-200 mb-10 text-left">
                 <li className="flex items-center">
                   <CheckIcon />
-                  <span className="ml-3 text-base">Unlimited text-behind effects</span>
+                  <span className="ml-3 text-base">
+                    Unlimited text-behind effects
+                  </span>
                 </li>
                 <li className="flex items-center">
                   <CheckIcon />
@@ -190,7 +193,9 @@ const PricingSection: React.FC<PricingSectionProps> = ({
               <ul className="space-y-4 text-gray-300 mb-10 text-left">
                 <li className="flex items-center">
                   <CheckIcon />
-                  <span className="ml-3 text-base">Unlimited text-behind effects</span>
+                  <span className="ml-3 text-base">
+                    Unlimited text-behind effects
+                  </span>
                 </li>
                 <li className="flex items-center">
                   <CheckIcon />

@@ -4,7 +4,8 @@ import { verifyWebhookSignature } from '@/lib/stripe'
 import { createSupabaseServerClient } from '@/lib/supabase'
 import Stripe from 'stripe'
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder_for_build'
+const webhookSecret =
+  process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder_for_build'
 
 export async function POST(request: NextRequest) {
   try {
@@ -79,22 +80,56 @@ async function handleCheckoutSessionCompleted(
       return
     }
 
+    console.log(
+      '🎉 Checkout completed for user:',
+      userId,
+      'customer:',
+      customerId
+    )
+
     const supabase = createSupabaseServerClient()
 
-    // Update user with Stripe customer ID and subscription status
-    const { error } = await supabase
+    // First, ensure user exists in database
+    const { data: existingUser } = await supabase
       .from('users')
-      .update({
+      .select('*')
+      .eq('clerk_user_id', userId)
+      .single()
+
+    if (!existingUser) {
+      console.log('👤 User not found, creating user record...')
+      // Create user record if it doesn't exist
+      const { error: createError } = await supabase.from('users').insert({
+        clerk_user_id: userId,
         stripe_customer_id: customerId,
         subscription_status: 'active',
+        subscription_tier: 'monthly', // Default, will be updated by subscription webhook
+        usage_count: 0,
+        created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
-      .eq('clerk_user_id', userId)
 
-    if (error) {
-      console.error('Error updating user after checkout:', error)
+      if (createError) {
+        console.error('Error creating user after checkout:', createError)
+        return
+      }
+      console.log('✅ User created after successful checkout:', userId)
     } else {
-      console.log('✅ User updated after successful checkout:', userId)
+      // Update existing user with Stripe customer ID
+      const { error } = await supabase
+        .from('users')
+        .update({
+          stripe_customer_id: customerId,
+          subscription_status: 'active',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('clerk_user_id', userId)
+
+      if (error) {
+        console.error('Error updating user after checkout:', error)
+      } else {
+        console.log('✅ User updated after successful checkout:', userId)
+      }
     }
   } catch (error) {
     console.error('Error handling checkout session completed:', error)
@@ -121,27 +156,63 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
 
     const supabase = createSupabaseServerClient()
 
-    const { error } = await supabase
+    // Ensure user exists, create if not
+    const { data: existingUser } = await supabase
       .from('users')
-      .update({
+      .select('*')
+      .eq('clerk_user_id', userId)
+      .single()
+
+    if (!existingUser) {
+      console.log(
+        '👤 User not found, creating user record with subscription...'
+      )
+      const { error: createError } = await supabase.from('users').insert({
+        clerk_user_id: userId,
         stripe_customer_id: customerId,
-        stripe_subscription_id: subscription.id,
+        subscription_id: subscription.id,
         subscription_tier: subscriptionTier,
         subscription_status: subscription.status,
-        subscription_current_period_start: (subscription as any).current_period_start
-          ? new Date((subscription as any).current_period_start * 1000).toISOString()
+        subscription_current_period_start: subscription.current_period_start
+          ? new Date(subscription.current_period_start * 1000).toISOString()
           : null,
-        subscription_current_period_end: (subscription as any).current_period_end
-          ? new Date((subscription as any).current_period_end * 1000).toISOString()
+        subscription_current_period_end: subscription.current_period_end
+          ? new Date(subscription.current_period_end * 1000).toISOString()
           : null,
+        usage_count: 0,
+        created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
-      .eq('clerk_user_id', userId)
 
-    if (error) {
-      console.error('Error updating user subscription:', error)
+      if (createError) {
+        console.error('Error creating user with subscription:', createError)
+      } else {
+        console.log('✅ User created with subscription:', userId)
+      }
     } else {
-      console.log('✅ Subscription created for user:', userId)
+      // Update existing user
+      const { error } = await supabase
+        .from('users')
+        .update({
+          stripe_customer_id: customerId,
+          subscription_id: subscription.id,
+          subscription_tier: subscriptionTier,
+          subscription_status: subscription.status,
+          subscription_current_period_start: subscription.current_period_start
+            ? new Date(subscription.current_period_start * 1000).toISOString()
+            : null,
+          subscription_current_period_end: subscription.current_period_end
+            ? new Date(subscription.current_period_end * 1000).toISOString()
+            : null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('clerk_user_id', userId)
+
+      if (error) {
+        console.error('Error updating user subscription:', error)
+      } else {
+        console.log('✅ Subscription updated for user:', userId)
+      }
     }
   } catch (error) {
     console.error('Error handling subscription created:', error)
@@ -170,13 +241,14 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     const { error } = await supabase
       .from('users')
       .update({
+        subscription_id: subscription.id,
         subscription_tier: subscriptionTier,
         subscription_status: subscription.status,
-        subscription_current_period_start: (subscription as any).current_period_start
-          ? new Date((subscription as any).current_period_start * 1000).toISOString()
+        subscription_current_period_start: subscription.current_period_start
+          ? new Date(subscription.current_period_start * 1000).toISOString()
           : null,
-        subscription_current_period_end: (subscription as any).current_period_end
-          ? new Date((subscription as any).current_period_end * 1000).toISOString()
+        subscription_current_period_end: subscription.current_period_end
+          ? new Date(subscription.current_period_end * 1000).toISOString()
           : null,
         updated_at: new Date().toISOString(),
       })
@@ -208,7 +280,9 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       .update({
         subscription_tier: 'free',
         subscription_status: 'canceled',
-        stripe_subscription_id: null,
+        subscription_id: null,
+        subscription_current_period_start: null,
+        subscription_current_period_end: null,
         updated_at: new Date().toISOString(),
       })
       .eq('clerk_user_id', userId)
