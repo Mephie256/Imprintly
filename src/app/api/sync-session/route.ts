@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-05-28.basil',
 })
 
 export async function POST(request: NextRequest) {
@@ -23,16 +23,19 @@ export async function POST(request: NextRequest) {
 
     // Parse the request body to get session ID
     const { sessionId } = await request.json()
-    
+
     if (!sessionId) {
-      return NextResponse.json({ error: 'Session ID required' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Session ID required' },
+        { status: 400 }
+      )
     }
 
     console.log('🔍 Fetching session:', sessionId)
 
     // Fetch the checkout session from Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['subscription', 'customer']
+      expand: ['subscription', 'customer'],
     })
 
     console.log('📋 Session data:', {
@@ -40,22 +43,29 @@ export async function POST(request: NextRequest) {
       status: session.status,
       customer: session.customer,
       subscription: session.subscription,
-      metadata: session.metadata
+      metadata: session.metadata,
     })
 
     if (session.status !== 'complete') {
-      return NextResponse.json({ 
-        error: 'Session not completed', 
-        status: session.status 
-      }, { status: 400 })
+      return NextResponse.json(
+        {
+          error: 'Session not completed',
+          status: session.status,
+        },
+        { status: 400 }
+      )
     }
 
-    const customerId = typeof session.customer === 'string' 
-      ? session.customer 
-      : session.customer?.id
+    const customerId =
+      typeof session.customer === 'string'
+        ? session.customer
+        : session.customer?.id
 
     if (!customerId) {
-      return NextResponse.json({ error: 'No customer ID found' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'No customer ID found' },
+        { status: 400 }
+      )
     }
 
     const supabase = createSupabaseServerClient()
@@ -69,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     if (!existingUser) {
       console.log('👤 User not found, creating user record...')
-      
+
       // Create user record
       const { data: newUser, error: createError } = await supabase
         .from('users')
@@ -122,14 +132,15 @@ export async function POST(request: NextRequest) {
 
     // If there's a subscription, get its details
     if (session.subscription) {
-      const subscriptionId = typeof session.subscription === 'string' 
-        ? session.subscription 
-        : session.subscription.id
+      const subscriptionId =
+        typeof session.subscription === 'string'
+          ? session.subscription
+          : session.subscription.id
 
       console.log('🔍 Fetching subscription details:', subscriptionId)
-      
+
       const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-      
+
       // Determine subscription tier based on price
       const priceId = subscription.items.data[0]?.price.id
       let subscriptionTier: 'monthly' | 'yearly' = 'monthly'
@@ -142,7 +153,7 @@ export async function POST(request: NextRequest) {
         id: subscription.id,
         status: subscription.status,
         tier: subscriptionTier,
-        priceId
+        priceId,
       })
 
       // Update user with subscription details
@@ -152,9 +163,14 @@ export async function POST(request: NextRequest) {
           subscription_id: subscription.id,
           subscription_status: subscription.status,
           subscription_tier: subscriptionTier,
-          subscription_current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-          subscription_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-          subscription_cancel_at_period_end: subscription.cancel_at_period_end,
+          subscription_current_period_start: new Date(
+            (subscription as any).current_period_start * 1000
+          ).toISOString(),
+          subscription_current_period_end: new Date(
+            (subscription as any).current_period_end * 1000
+          ).toISOString(),
+          subscription_cancel_at_period_end: (subscription as any)
+            .cancel_at_period_end,
           updated_at: new Date().toISOString(),
         })
         .eq('clerk_user_id', userId)
@@ -164,7 +180,10 @@ export async function POST(request: NextRequest) {
       if (subUpdateError) {
         console.error('❌ Error updating subscription:', subUpdateError)
         return NextResponse.json(
-          { error: 'Failed to update subscription', details: subUpdateError.message },
+          {
+            error: 'Failed to update subscription',
+            details: subUpdateError.message,
+          },
           { status: 500 }
         )
       }
@@ -190,7 +209,6 @@ export async function POST(request: NextRequest) {
       message: 'Session synced successfully',
       user: finalUser,
     })
-
   } catch (error) {
     console.error('❌ Sync session error:', error)
     return NextResponse.json(

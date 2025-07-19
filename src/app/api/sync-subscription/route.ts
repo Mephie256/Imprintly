@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-05-28.basil',
 })
 
 export async function POST(request: NextRequest) {
@@ -96,13 +96,13 @@ export async function POST(request: NextRequest) {
                 subscription_status: subscription.status,
                 subscription_tier: subscriptionTier,
                 subscription_current_period_start: new Date(
-                  subscription.current_period_start * 1000
+                  (subscription as any).current_period_start * 1000
                 ).toISOString(),
                 subscription_current_period_end: new Date(
-                  subscription.current_period_end * 1000
+                  (subscription as any).current_period_end * 1000
                 ).toISOString(),
-                subscription_cancel_at_period_end:
-                  subscription.cancel_at_period_end,
+                subscription_cancel_at_period_end: (subscription as any)
+                  .cancel_at_period_end,
                 updated_at: new Date().toISOString(),
               })
               .eq('clerk_user_id', userId)
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
       currentPeriodStart,
       currentPeriodEnd,
       cancelAtPeriodEnd = false,
-    } = body
+    } = body as any
 
     // Update user subscription in Supabase
     const { data, error } = await supabase

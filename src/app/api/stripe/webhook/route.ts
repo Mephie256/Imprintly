@@ -173,12 +173,12 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
         subscription_id: subscription.id,
         subscription_tier: subscriptionTier,
         subscription_status: subscription.status,
-        subscription_current_period_start: subscription.current_period_start
-          ? new Date(subscription.current_period_start * 1000).toISOString()
-          : null,
-        subscription_current_period_end: subscription.current_period_end
-          ? new Date(subscription.current_period_end * 1000).toISOString()
-          : null,
+        subscription_current_period_start: new Date(
+          (subscription as any).current_period_start * 1000
+        ).toISOString(),
+        subscription_current_period_end: new Date(
+          (subscription as any).current_period_end * 1000
+        ).toISOString(),
         usage_count: 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -198,12 +198,12 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
           subscription_id: subscription.id,
           subscription_tier: subscriptionTier,
           subscription_status: subscription.status,
-          subscription_current_period_start: subscription.current_period_start
-            ? new Date(subscription.current_period_start * 1000).toISOString()
-            : null,
-          subscription_current_period_end: subscription.current_period_end
-            ? new Date(subscription.current_period_end * 1000).toISOString()
-            : null,
+          subscription_current_period_start: new Date(
+            (subscription as any).current_period_start * 1000
+          ).toISOString(),
+          subscription_current_period_end: new Date(
+            (subscription as any).current_period_end * 1000
+          ).toISOString(),
           updated_at: new Date().toISOString(),
         })
         .eq('clerk_user_id', userId)
@@ -244,12 +244,12 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         subscription_id: subscription.id,
         subscription_tier: subscriptionTier,
         subscription_status: subscription.status,
-        subscription_current_period_start: subscription.current_period_start
-          ? new Date(subscription.current_period_start * 1000).toISOString()
-          : null,
-        subscription_current_period_end: subscription.current_period_end
-          ? new Date(subscription.current_period_end * 1000).toISOString()
-          : null,
+        subscription_current_period_start: new Date(
+          (subscription as any).current_period_start * 1000
+        ).toISOString(),
+        subscription_current_period_end: new Date(
+          (subscription as any).current_period_end * 1000
+        ).toISOString(),
         updated_at: new Date().toISOString(),
       })
       .eq('clerk_user_id', userId)
